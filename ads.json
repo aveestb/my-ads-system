@@ -1,16 +1,44 @@
 [
   {
     "id": 1,
-    "title": "Image Compressor",
-    "image": "https://yourusername.github.io/my-ads-system/img1.jpg",
+    "title": "Free Image Compressor",
+    "image": "https://aveestb.github.io/my-ads-system/img1.jpg",
     "link": "https://yoursite.com/tool1",
     "category": "tools"
   },
   {
     "id": 2,
-    "title": "Blog SEO Guide",
-    "image": "https://yourusername.github.io/my-ads-system/img2.jpg",
+    "title": "Color Converter Tool",
+    "image": "https://aveestb.github.io/my-ads-system/img2.jpg",
+    "link": "https://yoursite.com/tool2",
+    "category": "tools"
+  },
+  {
+    "id": 3,
+    "title": "YouTube Thumbnail Downloader",
+    "image": "https://aveestb.github.io/my-ads-system/img3.jpg",
+    "link": "https://yoursite.com/tool3",
+    "category": "tools"
+  },
+  {
+    "id": 4,
+    "title": "SEO Blog Guide",
+    "image": "https://aveestb.github.io/my-ads-system/img4.jpg",
     "link": "https://yoursite.com/post1",
+    "category": "blog"
+  },
+  {
+    "id": 5,
+    "title": "Make Money Online Tips",
+    "image": "https://aveestb.github.io/my-ads-system/img5.jpg",
+    "link": "https://yoursite.com/post2",
+    "category": "blog"
+  },
+  {
+    "id": 6,
+    "title": "Best Free Tools List",
+    "image": "https://aveestb.github.io/my-ads-system/img6.jpg",
+    "link": "https://yoursite.com/post3",
     "category": "blog"
   }
 ]
