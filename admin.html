@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
@@ -17,7 +18,7 @@ h2 { text-align: center; }
 <h2>🔐 Ads Control Panel</h2>
 
 <script>
-// 🔐 USERS SYSTEM (1 admin + 5 clients)
+// 🔐 USERS SYSTEM
 const users = [
     {user:"admin", pass:"7931", role:"admin"},
     {user:"client1", pass:"1111", role:"client"},
@@ -62,14 +63,14 @@ if (!currentUser) {
 const repo = "aveestb/my-ads-system";
 
 let ads = [];
-let stats = {};
+let stats = { ads:{}, geo:{}, device:{} };
 let shaAds = "", shaStats = "";
 
-// show role
+// role show
 document.getElementById("roleInfo").innerHTML =
 "Logged in as: <b>" + currentUser.user + "</b> (" + currentUser.role + ")";
 
-// load files
+// load data
 async function loadAll() {
     let adRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`);
     let statRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`);
@@ -102,52 +103,65 @@ function renderAds() {
     document.getElementById("adsList").innerHTML = html;
 }
 
-// render analytics
+// render analytics (NEW STRUCTURE)
 function renderStats() {
     let html = "";
-    for (let id in stats) {
-        html += `<p>Ad ${id} → Views: ${stats[id].views || 0}, Clicks: ${stats[id].clicks || 0}</p>`;
+    for (let id in stats.ads) {
+        let s = stats.ads[id];
+        html += `<p>Ad ${id} → Views: ${s.views || 0}, Clicks: ${s.clicks || 0}, CTR: ${s.ctr || 0}%</p>`;
     }
     document.getElementById("statsBox").innerHTML = html;
 }
 
-// edit
+// edit (FIXED)
 function editAd(id) {
     let ad = ads.find(a => a.id == id);
-    idInput.value = ad.id;
-    title.value = ad.title;
-    image.value = ad.image;
-    link.value = ad.link;
-    category.value = ad.category;
+
+    document.getElementById("id").value = ad.id;
+    document.getElementById("title").value = ad.title;
+    document.getElementById("image").value = ad.image;
+    document.getElementById("link").value = ad.link;
+    document.getElementById("category").value = ad.category;
 }
 
-// add / update
+// save ad (WITH stats auto create)
 function saveAd() {
     let id = document.getElementById("id").value;
 
     let ad = {
         id: Number(id || Date.now()),
-        title: title.value,
-        image: image.value,
-        link: link.value,
-        category: category.value
+        title: document.getElementById("title").value,
+        image: document.getElementById("image").value,
+        link: document.getElementById("link").value,
+        category: document.getElementById("category").value
     };
 
     let index = ads.findIndex(a => a.id == ad.id);
 
     if (index > -1) ads[index] = ad;
-    else ads.push(ad);
+    else {
+        ads.push(ad);
+
+        // 📊 create stats automatically
+        if (!stats.ads[ad.id]) {
+            stats.ads[ad.id] = { views: 0, clicks: 0, ctr: 0 };
+        }
+    }
 
     renderAds();
 }
 
-// delete (admin only)
+// delete (admin only + stats remove)
 function deleteAd(id) {
     ads = ads.filter(a => a.id != id);
+
+    delete stats.ads[id];
+
     renderAds();
+    renderStats();
 }
 
-// save to GitHub
+// save to github
 async function saveAll() {
     let token = document.getElementById("token").value;
 
@@ -157,11 +171,13 @@ async function saveAll() {
     alert("Saved to GitHub!");
 }
 
+// update file (FIXED headers)
 async function updateFile(path, content, sha, token) {
     await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
         method: "PUT",
         headers: {
-            "Authorization": "token " + token
+            "Authorization": "token " + token,
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             message: "update " + path,
