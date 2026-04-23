@@ -1,62 +1,41 @@
 (function () {
 
     const adBoxId = "myAdBox";
-
-    // 🔒 Password Protection
-    const PASSWORD = "7931"; // এখানে নিজের password বসাও
-    let userPass = prompt("Enter Ad Password");
-
-    if (userPass !== PASSWORD) {
-        document.getElementById(adBoxId).innerHTML = "<p style='text-align:center;'>Access Denied 🚫</p>";
-        throw new Error("Unauthorized");
-    }
-
-    // 🔒 Domain Lock
-    const allowedDomains = ["https://techlystb.blogspot.com", "https://techlyapk.blogspot.com", "https://apkstb.blogspot.com"];
-
-    if (!allowedDomains.some(domain => location.hostname.includes(domain))) {
-        document.getElementById(adBoxId).innerHTML = "";
-        throw new Error("Blocked Domain");
-    }
-
-    // 📂 Category Support
     const category = document.getElementById(adBoxId)?.dataset.category || "all";
 
     async function loadAd() {
-        try {
-            let ads = await fetch("https://techlystb.github.io/my-ads-system/ads.json")
-                .then(res => res.json());
+        let ads = await fetch("https://techlystb.github.io/my-ads-system/ads.json").then(r => r.json());
+        let stats = await fetch("https://techlystb.github.io/my-ads-system/stats.json").then(r => r.json());
 
-            // category filter
-            if (category !== "all") {
-                ads = ads.filter(ad => ad.category === category);
-            }
-
-            if (!ads.length) {
-                document.getElementById(adBoxId).innerHTML = "No Ads Found";
-                return;
-            }
-
-            let ad = ads[Math.floor(Math.random() * ads.length)];
-
-            let html = `
-                <a href="${ad.link}" target="_blank">
-                    <img src="${ad.image}" loading="lazy" style="width:100%;border-radius:10px;">
-                    <p style="text-align:center;font-size:14px;">${ad.title}</p>
-                </a>
-            `;
-
-            document.getElementById(adBoxId).innerHTML = html;
-
-        } catch (err) {
-            console.log("Ad load error:", err);
+        // filter by category
+        if (category !== "all") {
+            ads = ads.filter(ad => ad.category === category);
         }
+
+        let ad = ads[Math.floor(Math.random() * ads.length)];
+
+        // view count
+        if (!stats[ad.id]) stats[ad.id] = { clicks: 0, views: 0 };
+        stats[ad.id].views++;
+
+        updateStats(stats);
+
+        let html = `
+            <a href="${ad.link}?ad_id=${ad.id}" target="_blank">
+                <img src="${ad.image}" style="width:100%">
+                <p>${ad.title}</p>
+            </a>
+        `;
+
+        document.getElementById(adBoxId).innerHTML = html;
     }
 
-    // first load
-    loadAd();
+    async function updateStats(stats) {
+        // ⚠️ GitHub API লাগবে (token ছাড়া কাজ করবে না)
+        console.log("Stats updated locally", stats);
+    }
 
-    // 🔁 Auto rotate (5 sec)
+    loadAd();
     setInterval(loadAd, 5000);
 
 })();
