@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,22 +7,23 @@
 <title>Ads Admin Panel</title>
 
 <style>
-/* ====== YOUR ORIGINAL UI (UNCHANGED) ====== */
 body {
     margin: 0;
     height: 100vh;
     background: radial-gradient(circle, #01030a, #000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-family: 'Segoe UI', sans-serif;
 }
 
+/* Login UI */
 .phone {
     width: 320px;
     height: 600px;
     border-radius: 40px;
     background: #020617;
     padding: 15px;
-    margin:auto;
-    margin-top:40px;
     position: relative;
     overflow: hidden;
 }
@@ -51,13 +53,15 @@ body {
 .screen {
     position: relative;
     z-index: 2;
+    width: 100%;
     height: 100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Login button */
 #loginBtn {
     padding: 12px 30px;
     border: 2px solid #0ff;
@@ -65,23 +69,40 @@ body {
     background: transparent;
     border-radius: 30px;
     cursor: pointer;
+    box-shadow: 0 0 10px #0ff;
+    animation: pulse 2s infinite;
 }
 
+@keyframes pulse {
+    0% { box-shadow: 0 0 10px #0ff; }
+    50% { box-shadow: 0 0 25px #0ff; }
+    100% { box-shadow: 0 0 10px #0ff; }
+}
+
+/* Login box */
 .login-box {
     margin-top: 20px;
     width: 80%;
     opacity: 0;
-    transform: translateY(50px);
+    transform: translateY(50px) scale(0.8);
     pointer-events: none;
     transition: 0.5s;
 }
 
 .login-box.active {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     pointer-events: all;
 }
 
+.login-box h2 {
+    color: #0ff;
+    text-align: center;
+}
+button[onclick="logout()"]{
+  background: linear-gradient(135deg,#ef4444,#dc2626);
+}
+    
 .glow-input {
     width: 100%;
     margin: 12px 0;
@@ -92,6 +113,10 @@ body {
     color: #0ff;
 }
 
+.glow-input.typing {
+    box-shadow: 0 0 10px #0ff;
+}
+
 .submit-btn {
     width: 100%;
     padding: 12px;
@@ -100,85 +125,114 @@ body {
     background: #0ff;
     color: #000;
     font-weight: bold;
+    cursor: pointer;
 }
 
-/* ====== MAIN PANEL ====== */
-#mainPanel{
-    display:none;
-    position:absolute;
-    inset:0;
-    background:#020617;
-    color:white;
-    padding:20px;
-    overflow-y:auto;
+/* MAIN PANEL */
+#mainPanel {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #020617;
+    color: white;
+    padding: 20px;
+    overflow-y: auto;
 }
 
-button{
-    width:100%;
-    padding:10px;
-    margin:5px 0;
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: none;
 }
 
-.ad{
-    background:#1e293b;
-    padding:10px;
-    margin:10px 0;
+button {
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: white;
 }
 
-/* ====== GRAPH ====== */
-.graph{
-    display:flex;
-    align-items:flex-end;
-    gap:5px;
-    height:120px;
+.ad {
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
 }
 
-.bar{
-    flex:1;
-    background:linear-gradient(#3b82f6,#6366f1);
-    text-align:center;
-    color:white;
-    font-size:10px;
+#statsBox {
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.5s ease;
+  background: #020617;
+  padding: 0 10px;
+  border-radius: 10px;
 }
+
+#statsBox.active {
+  max-height: 500px;
+  padding: 10px;
+}
+
+.graph {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 120px;
+  margin: 10px 0;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(180deg,#3b82f6,#6366f1);
+  border-radius: 5px;
+  transition: 0.4s;
+  text-align: center;
+  color: #fff;
+  font-size: 10px;
+}
+
 </style>
+
 </head>
 
 <body>
 
+
+
 <!-- LOGIN UI -->
 <div class="phone" id="loginUI">
-<div class="screen">
+    <div class="screen">
 
-<button id="loginBtn">⚡ Login</button>
+        <button id="loginBtn">⚡ Login</button>
 
-<div class="login-box" id="loginBox">
-<h2 style="color:#0ff;">Access System</h2>
+        <div class="login-box" id="loginBox">
+            <h2>Access System</h2>
 
-<input id="username" placeholder="Username" class="glow-input">
-<input id="password" type="password" placeholder="Password" class="glow-input">
+            <input id="username" placeholder="Username" class="glow-input">
+            <input id="password" type="password" placeholder="Password" class="glow-input">
 
-<p id="errorMsg" style="color:red;display:none;">❌ Wrong login</p>
+            <p id="errorMsg" style="display:none;">❌ Wrong Username/Password</p>
 
-<button class="submit-btn" onclick="login()">ENTER</button>
-</div>
+            <button class="submit-btn" onclick="login()">ENTER</button>
+        </div>
 
-</div>
+    </div>
 </div>
 
 <!-- MAIN PANEL -->
-<div id="mainPanel">
+<div id="mainPanel" style="display:none;">
 
 <h2>🔐 Ads Control Panel</h2>
 <p id="roleInfo"></p>
 
 <button onclick="logout()">🚪 Logout</button>
 
-<input id="token" placeholder="GitHub Token">
+<input type="password" id="token" placeholder="GitHub Token">
 
 <h3>Add / Edit Ad</h3>
 <input id="id" placeholder="ID">
 <input id="title" placeholder="Title">
-<input id="image" placeholder="Image">
+<input id="image" placeholder="Image URL">
 <input id="link" placeholder="Link">
 <input id="category" placeholder="Category">
 
@@ -191,13 +245,13 @@ button{
 <button onclick="toggleStats()">📊 Analytics</button>
 
 <div id="statsBox" style="display:none;">
-<div id="statsList"></div>
+    <div id="statsList"></div>
 
-<h4>Views</h4>
-<div id="viewsGraph" class="graph"></div>
+    <h4>Views</h4>
+    <div id="viewsGraph"></div>
 
-<h4>Clicks</h4>
-<div id="clicksGraph" class="graph"></div>
+    <h4>Clicks</h4>
+    <div id="clicksGraph"></div>
 </div>
 
 </div>
@@ -205,46 +259,57 @@ button{
 <script>
 
 // ===== USERS =====
-const users=[{user:"admin",pass:"7931"}];
+const users = [
+ {user:"admin", pass:"7931"}
+];
 
-let ads=[];
-let stats={ads:{}};
-let shaAds="",shaStats="";
-const repo="aveestb/my-ads-system";
+// ===== GLOBAL =====
+let ads = [];
+let stats = { ads:{} };
+
+let shaAds="", shaStats="";
+const repo = "aveestb/my-ads-system";
 
 // ===== LOGIN UI =====
-loginBtn.onclick=()=>loginBox.classList.toggle("active");
+document.getElementById("loginBtn").onclick = () => {
+ document.getElementById("loginBox").classList.toggle("active");
+};
 
 // ===== LOGIN =====
 function login(){
- let u=username.value.trim();
- let p=password.value.trim();
 
- let user=users.find(x=>x.user===u && x.pass===p);
+ let u = document.getElementById("username").value.trim();
+ let p = document.getElementById("password").value.trim();
+ let err = document.getElementById("errorMsg");
+
+ let user = users.find(x => x.user===u && x.pass===p);
 
  if(!user){
-  errorMsg.style.display="block";
+  err.style.display = "block";
   return;
  }
 
- loginUI.style.display="none";
- mainPanel.style.display="block";
+ err.style.display = "none";
 
- roleInfo.innerHTML="Logged in: "+user.user;
+ document.getElementById("loginUI").style.display="none";
+ document.getElementById("mainPanel").style.display="block";
+
+ document.getElementById("roleInfo").innerHTML = "Logged in: " + user.user;
 
  loadAll();
 }
 
-// ===== LOAD =====
+// ===== LOAD DATA =====
 async function loadAll(){
- let a=await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
- let s=await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
 
- shaAds=a.sha;
- shaStats=s.sha;
+ let adsRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
+ let statsRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
 
- ads=JSON.parse(atob(a.content));
- stats=JSON.parse(atob(s.content));
+ shaAds = adsRes.sha;
+ shaStats = statsRes.sha;
+
+ ads = JSON.parse(atob(adsRes.content));
+ stats = JSON.parse(atob(statsRes.content));
 
  renderAds();
  renderStats();
@@ -252,118 +317,145 @@ async function loadAll(){
 
 // ===== RENDER ADS =====
 function renderAds(){
- let html="";
+
+ let html = "";
 
  ads.forEach(ad=>{
 
+  // ensure stats exists
   if(!stats.ads[ad.id]){
-   stats.ads[ad.id]={views:0,clicks:0,ctr:0};
+    stats.ads[ad.id] = {views:0, clicks:0, ctr:0};
   }
 
+  // view count
   stats.ads[ad.id].views++;
 
-  html+=`
+  html += `
   <div class="ad">
-  <b>${ad.title}</b><br>
+    <b>${ad.title}</b><br>
 
-  <img src="${ad.image}" width="100%"
-  onclick="trackClick(${ad.id},'${ad.link}')"
-  style="cursor:pointer;">
+    <img src="${ad.image}" width="100%"
+    style="cursor:pointer;"
+    onclick="trackClick(${ad.id}, '${ad.link.replace(/'/g,"\\'")}')">
   </div>
   `;
  });
 
- adsList.innerHTML=html;
+ document.getElementById("adsList").innerHTML = html;
 }
 
-// ===== CLICK =====
-async function trackClick(id,url){
+// ===== CLICK TRACK =====
+async function trackClick(id, url){
+
+ if(!stats.ads[id]){
+   stats.ads[id] = {views:0, clicks:0, ctr:0};
+ }
 
  stats.ads[id].clicks++;
 
- let v=stats.ads[id].views;
- let c=stats.ads[id].clicks;
+ let v = stats.ads[id].views || 0;
+ let c = stats.ads[id].clicks || 0;
 
- stats.ads[id].ctr=((c/v)*100).toFixed(2);
+ stats.ads[id].ctr = v ? ((c/v)*100).toFixed(2) : 0;
 
  renderStats();
 
- let t=token.value;
- if(t){
-  await update("stats.json",stats,shaStats,t);
+ // optional GitHub save
+ let token = document.getElementById("token").value;
+ if(token){
+   await update("stats.json", stats, shaStats, token);
  }
 
- window.open(url);
+ window.open(url, "_blank");
 }
 
-// ===== STATS =====
+// ===== RENDER STATS =====
 function renderStats(){
 
- let list="",vGraph="",cGraph="";
- let maxV=1,maxC=1;
+ let listHTML = "";
+ let viewsHTML = "";
+ let clicksHTML = "";
 
- for(let i in stats.ads){
-  maxV=Math.max(maxV,stats.ads[i].views);
-  maxC=Math.max(maxC,stats.ads[i].clicks);
+ let maxViews = 1;
+ let maxClicks = 1;
+
+ for(let id in stats.ads){
+  maxViews = Math.max(maxViews, stats.ads[id].views);
+  maxClicks = Math.max(maxClicks, stats.ads[id].clicks);
  }
 
- for(let i in stats.ads){
-  let s=stats.ads[i];
+ for(let id in stats.ads){
 
-  list+=`Ad ${i}: ${s.views} / ${s.clicks} (${s.ctr}%)<br>`;
+  let s = stats.ads[id];
 
-  vGraph+=`<div class="bar" style="height:${(s.views/maxV)*100}%">${i}</div>`;
-  cGraph+=`<div class="bar" style="height:${(s.clicks/maxC)*100}%">${i}</div>`;
+  listHTML += `
+   <p>Ad ${id}: ${s.views} views / ${s.clicks} clicks / CTR ${s.ctr}%</p>
+  `;
+
+  let vHeight = (s.views / maxViews) * 100;
+  let cHeight = (s.clicks / maxClicks) * 100;
+
+  viewsHTML += `<div style="height:${vHeight}%">${id}</div>`;
+  clicksHTML += `<div style="height:${cHeight}%">${id}</div>`;
  }
 
- statsList.innerHTML=list;
- viewsGraph.innerHTML=vGraph;
- clicksGraph.innerHTML=cGraph;
+ document.getElementById("statsList").innerHTML = listHTML;
+ document.getElementById("viewsGraph").innerHTML = viewsHTML;
+ document.getElementById("clicksGraph").innerHTML = clicksHTML;
 }
 
 // ===== TOGGLE =====
 function toggleStats(){
- statsBox.style.display=
- statsBox.style.display==="none"?"block":"none";
+ let box = document.getElementById("statsBox");
+ box.style.display = box.style.display==="none" ? "block" : "none";
 }
 
-// ===== SAVE =====
-async function saveAll(){
- let t=token.value;
-
- await update("ads.json",ads,shaAds,t);
- await update("stats.json",stats,shaStats,t);
-
- alert("Saved!");
-}
-
-async function update(path,data,sha,t){
- return fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
-  method:"PUT",
-  headers:{
-   "Authorization":"token "+t,
-   "Content-Type":"application/json"
-  },
-  body:JSON.stringify({
-   message:"update",
-   content:btoa(JSON.stringify(data,null,2)),
-   sha:sha
-  })
- });
-}
-
-// ===== ADD AD =====
+// ===== SAVE ADS =====
 function saveAd(){
- let ad={
-  id:Number(id.value||Date.now()),
-  title:title.value,
-  image:image.value,
-  link:link.value,
-  category:category.value
+
+ let ad = {
+  id: Number(document.getElementById("id").value || Date.now()),
+  title: document.getElementById("title").value,
+  image: document.getElementById("image").value,
+  link: document.getElementById("link").value,
+  category: document.getElementById("category").value
  };
 
  ads.push(ad);
  renderAds();
+}
+
+// ===== SAVE TO GITHUB =====
+async function saveAll(){
+
+ let token = document.getElementById("token").value;
+
+ if(!token){
+  alert("GitHub token লাগবে!");
+  return;
+ }
+
+ await update("ads.json", ads, shaAds, token);
+ await update("stats.json", stats, shaStats, token);
+
+ alert("Saved!");
+}
+
+// ===== UPDATE =====
+async function update(path,data,sha,token){
+
+ await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+  method:"PUT",
+  headers:{
+   "Authorization":"token "+token,
+   "Content-Type":"application/json"
+  },
+  body:JSON.stringify({
+   message:"update "+path,
+   content:btoa(JSON.stringify(data,null,2)),
+   sha:sha
+  })
+ });
 }
 
 // ===== LOGOUT =====
@@ -373,5 +465,7 @@ function logout(){
 
 </script>
 
+
+    
 </body>
 </html>
