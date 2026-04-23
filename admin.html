@@ -335,15 +335,35 @@ function renderAds(){
 }
 
 
-// RENDER STATS
-function renderStats(){
+function renderAds(){
  let html="";
- for(let id in stats.ads){
-  let s=stats.ads[id];
-  html+=`<p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks</p>`;
- }
- statsBox.innerHTML=html;
+
+ ads.forEach(ad=>{
+
+  if(!stats.ads) stats.ads = {};
+
+  if(!stats.ads[ad.id]){
+    stats.ads[ad.id] = {views:0, clicks:0};
+  }
+
+  stats.ads[ad.id].views++;
+
+  html+=`
+  <div class="ad">
+   <b>${ad.title}</b><br>
+
+   <img src="${ad.image}" width="100%" 
+   onclick="trackClick(${ad.id}, '${ad.link.replace(/'/g,"\\'")}')" 
+   style="cursor:pointer;">
+
+   <button onclick="editAd(${ad.id})">Edit</button>
+   ${currentUser.role==="admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>` : ""}
+  </div>`;
+ });
+
+ adsList.innerHTML = html;
 }
+
 
 // TOGGLE STATS
 function toggleStats(){
@@ -424,18 +444,29 @@ async function update(path,data,sha,t){
  });
 }
 
-function trackClick(adId, url){
+async function trackClick(adId, url){
+
+    // ensure stats structure
+    if(!stats.ads) stats.ads = {};
+
     if(!stats.ads[adId]){
         stats.ads[adId] = {views:0, clicks:0};
     }
 
     stats.ads[adId].clicks++;
 
-    // link open
-    window.open(url, "_blank");
+    // 🔥 debug log
+    console.log("CLICK:", adId, stats.ads[adId]);
 
-    // optional save
-    saveAll();
+    // save first
+    try{
+        await saveAll();
+    }catch(e){
+        console.error("Save error:", e);
+    }
+
+    // open link AFTER save
+    window.open(url, "_blank");
 }
 
     
