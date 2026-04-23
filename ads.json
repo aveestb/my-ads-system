@@ -1,17 +1,16 @@
 [
   {
-    "title": "Free Image Compressor",
+    "id": 1,
+    "title": "Image Compressor",
     "image": "https://yourusername.github.io/my-ads-system/img1.jpg",
-    "link": "https://yourmainwebsite.com/tool1"
+    "link": "https://yoursite.com/tool1",
+    "category": "tools"
   },
   {
-    "title": "Color Converter Tool",
+    "id": 2,
+    "title": "Blog SEO Guide",
     "image": "https://yourusername.github.io/my-ads-system/img2.jpg",
-    "link": "https://yourmainwebsite.com/tool2"
-  },
-  {
-    "title": "YouTube Thumbnail Downloader",
-    "image": "https://yourusername.github.io/my-ads-system/img3.jpg",
-    "link": "https://yourmainwebsite.com/tool3"
+    "link": "https://yoursite.com/post1",
+    "category": "blog"
   }
 ]
