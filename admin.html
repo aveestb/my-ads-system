@@ -4,11 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Ads Admin Panel</title>
-
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; }
+.ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+h2 { text-align: center; }
+</style>
 <style>
 
 
-h2 { text-align: center; }
 
 #loginBox {
   background: #1e293b;
@@ -19,10 +22,7 @@ h2 { text-align: center; }
 }
 
 /* 📱 Mobile responsive */
-@media (max-width: 600px) {
-  body {
-    padding: 10px;
-  }
+
 
   #loginBox {
     margin-top: 20px;
@@ -55,12 +55,6 @@ button {
   cursor: pointer;
 }
 
-.ad {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px 0;
-}
 
 #statsBox {
   display:none;
