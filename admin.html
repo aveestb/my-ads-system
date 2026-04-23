@@ -1,9 +1,49 @@
-<h2>Ads Admin Panel</h2>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Ads Admin Panel</title>
+
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; }
+input, button { width: 100%; padding: 10px; margin: 5px 0; }
+.ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+h2 { text-align: center; }
+</style>
+
+</head>
+<body>
+
+<h2>🔐 Ads Control Panel</h2>
+
+<script>
+// 🔐 USERS SYSTEM (1 admin + 5 clients)
+const users = [
+    {user:"admin", pass:"7931", role:"admin"},
+    {user:"client1", pass:"1111", role:"client"},
+    {user:"client2", pass:"2222", role:"client"},
+    {user:"client3", pass:"3333", role:"client"},
+    {user:"client4", pass:"4444", role:"client"},
+    {user:"client5", pass:"5555", role:"client"}
+];
+
+let username = prompt("Username");
+let password = prompt("Password");
+
+let currentUser = users.find(u => u.user === username && u.pass === password);
+
+if (!currentUser) {
+    document.body.innerHTML = "<h2 style='text-align:center;margin-top:20%'>Access Denied 🚫</h2>";
+    throw new Error("Blocked");
+}
+</script>
+
+<p id="roleInfo"></p>
 
 <input type="password" id="token" placeholder="GitHub Token">
 
 <h3>Add / Edit Ad</h3>
-<input id="id" placeholder="ID (edit করতে)">
+<input id="id" placeholder="ID (edit হলে)">
 <input id="title" placeholder="Title">
 <input id="image" placeholder="Image URL">
 <input id="link" placeholder="Link">
@@ -19,19 +59,17 @@
 <button onclick="saveAll()">💾 Save to GitHub</button>
 
 <script>
+const repo = "aveestb/my-ads-system";
 
-// 🔒 Password Protection (এখানে বসবে)
-if (prompt("Enter password") !== "7931") {
-    document.body.innerHTML = "Access Denied";
-    throw new Error("Unauthorized");
-}
-    
-const repo = "techlystb/my-ads-system";
-const filePath = "ads.json";
 let ads = [];
-let stats = [];
+let stats = {};
 let shaAds = "", shaStats = "";
 
+// show role
+document.getElementById("roleInfo").innerHTML =
+"Logged in as: <b>" + currentUser.user + "</b> (" + currentUser.role + ")";
+
+// load files
 async function loadAll() {
     let adRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`);
     let statRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`);
@@ -49,35 +87,41 @@ async function loadAll() {
     renderStats();
 }
 
+// render ads
 function renderAds() {
     let html = "";
     ads.forEach(ad => {
         html += `
-        <div>
-            <b>${ad.title}</b> (${ad.category})
+        <div class="ad">
+            <b>${ad.title}</b> (${ad.category})<br>
+            <img src="${ad.image}" width="100%"><br>
             <button onclick="editAd(${ad.id})">Edit</button>
+            ${currentUser.role === "admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>` : ""}
         </div>`;
     });
     document.getElementById("adsList").innerHTML = html;
 }
 
+// render analytics
 function renderStats() {
     let html = "";
     for (let id in stats) {
-        html += `<p>Ad ${id} → Views: ${stats[id].views}, Clicks: ${stats[id].clicks}</p>`;
+        html += `<p>Ad ${id} → Views: ${stats[id].views || 0}, Clicks: ${stats[id].clicks || 0}</p>`;
     }
     document.getElementById("statsBox").innerHTML = html;
 }
 
+// edit
 function editAd(id) {
     let ad = ads.find(a => a.id == id);
-    document.getElementById("id").value = ad.id;
-    document.getElementById("title").value = ad.title;
-    document.getElementById("image").value = ad.image;
-    document.getElementById("link").value = ad.link;
-    document.getElementById("category").value = ad.category;
+    idInput.value = ad.id;
+    title.value = ad.title;
+    image.value = ad.image;
+    link.value = ad.link;
+    category.value = ad.category;
 }
 
+// add / update
 function saveAd() {
     let id = document.getElementById("id").value;
 
@@ -97,13 +141,20 @@ function saveAd() {
     renderAds();
 }
 
+// delete (admin only)
+function deleteAd(id) {
+    ads = ads.filter(a => a.id != id);
+    renderAds();
+}
+
+// save to GitHub
 async function saveAll() {
     let token = document.getElementById("token").value;
 
     await updateFile("ads.json", ads, shaAds, token);
     await updateFile("stats.json", stats, shaStats, token);
 
-    alert("Saved!");
+    alert("Saved to GitHub!");
 }
 
 async function updateFile(path, content, sha, token) {
@@ -120,4 +171,8 @@ async function updateFile(path, content, sha, token) {
     });
 }
 
-loadAll()yourusername
+loadAll();
+</script>
+
+</body>
+</html>
