@@ -309,17 +309,31 @@ async function loadAll(){
 // RENDER ADS
 function renderAds(){
  let html="";
+
  ads.forEach(ad=>{
+
+  // 👉 view tracking
+  if(!stats.ads[ad.id]){
+    stats.ads[ad.id] = {views:0, clicks:0};
+  }
+  stats.ads[ad.id].views++;
+
   html+=`
   <div class="ad">
    <b>${ad.title}</b><br>
-   <img src="${ad.image}" width="100%">
+
+   <img src="${ad.image}" width="100%"
+   onclick="trackClick(${ad.id}, \`${ad.link}\`)"
+   style="cursor:pointer;">
+
    <button onclick="editAd(${ad.id})">Edit</button>
-   ${currentUser.role==="admin"?`<button onclick="deleteAd(${ad.id})">Delete</button>`:""}
+   ${currentUser.role==="admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>` : ""}
   </div>`;
  });
- adsList.innerHTML=html;
+
+ adsList.innerHTML = html;
 }
+
 
 // RENDER STATS
 function renderStats(){
@@ -409,6 +423,22 @@ async function update(path,data,sha,t){
   })
  });
 }
+
+function trackClick(adId, url){
+    if(!stats.ads[adId]){
+        stats.ads[adId] = {views:0, clicks:0};
+    }
+
+    stats.ads[adId].clicks++;
+
+    // link open
+    window.open(url, "_blank");
+
+    // optional save
+    saveAll();
+}
+
+    
 </script>
 
 </body>
