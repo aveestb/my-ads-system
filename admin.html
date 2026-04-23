@@ -99,7 +99,10 @@ body {
     color: #0ff;
     text-align: center;
 }
-
+button[onclick="logout()"]{
+  background: linear-gradient(135deg,#ef4444,#dc2626);
+}
+    
 .glow-input {
     width: 100%;
     margin: 12px 0;
@@ -200,7 +203,7 @@ button {
 
 <h2>🔐 Ads Control Panel</h2>
 <p id="roleInfo"></p>
-
+<button onclick="logout()">🚪 Logout</button>
 <input type="password" id="token" placeholder="GitHub Token">
 
 <h3>Add / Edit Ad</h3>
@@ -366,6 +369,15 @@ function saveAd(){
  renderAds();
 }
 
+
+
+    // Logout script 
+
+    function logout(){
+    localStorage.removeItem("adsUser");
+    location.reload();
+    }
+    
 // DELETE
 function deleteAd(idVal){
  ads=ads.filter(a=>a.id!=idVal);
