@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber Login Pro</title>
+<title>Ads Admin Panel</title>
 
 <style>
 body {
@@ -17,6 +17,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
 }
 
+/* Login UI */
 .phone {
     width: 320px;
     height: 600px;
@@ -34,7 +35,6 @@ body {
     border-radius: 40px;
     background: linear-gradient(120deg, #0ff, #00f, #0ff);
     animation: borderMove 4s linear infinite;
-    z-index: 0;
 }
 
 .phone::after {
@@ -43,7 +43,6 @@ body {
     inset: 4px;
     background: #020617;
     border-radius: 36px;
-    z-index: 1;
 }
 
 @keyframes borderMove {
@@ -56,14 +55,13 @@ body {
     z-index: 2;
     width: 100%;
     height: 100%;
-    border-radius: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* Login Button */
+/* Login button */
 #loginBtn {
     padding: 12px 30px;
     border: 2px solid #0ff;
@@ -81,7 +79,7 @@ body {
     100% { box-shadow: 0 0 10px #0ff; }
 }
 
-/* Login Box */
+/* Login box */
 .login-box {
     margin-top: 20px;
     width: 80%;
@@ -100,7 +98,6 @@ body {
 .login-box h2 {
     color: #0ff;
     text-align: center;
-    text-shadow: 0 0 10px #0ff;
 }
 
 .glow-input {
@@ -111,18 +108,12 @@ body {
     border: 1px solid #0ff;
     background: transparent;
     color: #0ff;
-    outline: none;
-}
-
-.glow-input:focus {
-    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
 }
 
 .glow-input.typing {
-    box-shadow: 0 0 15px #0ff, 0 0 30px #0ff, inset 0 0 10px #0ff;
+    box-shadow: 0 0 10px #0ff;
 }
 
-/* Submit Button */
 .submit-btn {
     width: 100%;
     padding: 12px;
@@ -134,56 +125,43 @@ body {
     cursor: pointer;
 }
 
-.submit-btn:hover {
-    box-shadow: 0 0 20px #0ff, 0 0 50px #0ff;
-}
-
-/* Hidden main panel */
+/* MAIN PANEL */
 #mainPanel {
     display: none;
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: #020617;
     color: white;
     padding: 20px;
     overflow-y: auto;
 }
 
-
-
-  h2 {
-    font-size: 20px;
-  }
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: none;
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg,#3b82f6,#6366f1);
-  color: white;
-  cursor: pointer;
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: white;
 }
 
 .ad {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px 0;
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
 }
 
 #statsBox {
-  display:none;
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-}    position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;}
-
+    display:none;
+    background:#020617;
+    padding:10px;
+    border-radius:10px;
+}
 </style>
 
 </head>
@@ -204,29 +182,23 @@ button {
         <input id="username" type="text" placeholder="Username" class="glow-input">
         <input id="password" type="password" placeholder="Password" class="glow-input">
 
-        <p id="errorMsg" style="color:#ff6b6b; text-align:center; display:none;">
+        <p id="errorMsg" style="color:#ff6b6b;text-align:center;display:none;">
             ❌ Username বা Password ভুল
         </p>
 
         <button class="submit-btn" onclick="login()">ENTER</button>
     </div>
 
+</div>
+```
+
+</div>
 
 <!-- MAIN PANEL -->
 
 <div id="mainPanel">
-    <h2>🔐 Ads Control Panel</h2>
-    <p id="roleInfo"></p>
-
-</div>
-
-
-<!-- MAIN PANEL -->
-
-<div id="mainPanel" style="display:none;">
 
 <h2>🔐 Ads Control Panel</h2>
-
 <p id="roleInfo"></p>
 
 <input type="password" id="token" placeholder="GitHub Token">
@@ -248,9 +220,6 @@ button {
 
 </div>
 
-
-
-        
 <script>
 // USERS
 const users = [
@@ -262,63 +231,171 @@ const users = [
  {user:"client5", pass:"5555", role:"client"}
 ];
 
-const btn = document.getElementById("loginBtn");
-const box = document.getElementById("loginBox");
+let currentUser;
+const repo = "aveestb/my-ads-system";
 
-// open animation
-btn.onclick = () => {
-    box.classList.toggle("active");
-};
+let ads = [];
+let stats = {ads:{}};
+let shaAds="", shaStats="";
+
+// login UI toggle
+loginBtn.onclick = () => loginBox.classList.toggle("active");
 
 // typing glow
-document.querySelectorAll(".glow-input").forEach(input=>{
-    input.addEventListener("input", ()=>{
-        input.classList.toggle("typing", input.value.length>0);
-    });
+document.querySelectorAll(".glow-input").forEach(i=>{
+ i.oninput=()=>i.classList.toggle("typing", i.value.length>0);
 });
 
 // LOGIN
 function login(){
-    let u = document.getElementById("username").value.trim();
-    let p = document.getElementById("password").value.trim();
-    let err = document.getElementById("errorMsg");
+ let u=username.value.trim();
+ let p=password.value.trim();
+ let err=errorMsg;
 
-    let user = users.find(x=>x.user===u && x.pass===p);
+ let user=users.find(x=>x.user===u && x.pass===p);
 
-    if(!user){
-        err.style.display="block";
-        return;
-    }
+ if(!user){
+  err.style.display="block";
+  return;
+ }
 
-    err.style.display="none";
+ currentUser=user;
 
-    document.getElementById("loginUI").style.display="none";
-    document.getElementById("mainPanel").style.display="block";
+ loginUI.style.display="none";
+ mainPanel.style.display="block";
 
-    document.getElementById("roleInfo").innerHTML =
-     `Logged in as <b>${user.user}</b> (${user.role})`;
+ roleInfo.innerHTML=`Logged in as <b>${user.user}</b> (${user.role})`;
 
-    localStorage.setItem("adsUser", JSON.stringify(user));
+ err.style.display="none";
+
+ localStorage.setItem("adsUser", JSON.stringify(user));
+
+ loadAll();
 }
 
 // AUTO LOGIN
-window.onload = function(){
-    let saved = localStorage.getItem("adsUser");
-    if(saved){
-        let user = JSON.parse(saved);
+window.onload=()=>{
+ let saved=localStorage.getItem("adsUser");
+ if(saved){
+  let user=JSON.parse(saved);
+  currentUser=user;
 
-        document.getElementById("loginUI").style.display="none";
-        document.getElementById("mainPanel").style.display="block";
+  loginUI.style.display="none";
+  mainPanel.style.display="block";
 
-        document.getElementById("roleInfo").innerHTML =
-         `Logged in as <b>${user.user}</b> (${user.role})`;
-    }
+  roleInfo.innerHTML=`Logged in as <b>${user.user}</b> (${user.role})`;
+
+  loadAll();
+ }
 };
 
-// LOGOUT
-function logout(){
-    localStorage.removeItem("adsUser");
-    location.reload();
+// LOAD DATA
+async function loadAll(){
+ let a=await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
+ let s=await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
+
+ shaAds=a.sha; shaStats=s.sha;
+
+ ads=JSON.parse(atob(a.content));
+ stats=JSON.parse(atob(s.content));
+
+ renderAds();
+ renderStats();
+}
+
+// RENDER ADS
+function renderAds(){
+ let html="";
+ ads.forEach(ad=>{
+  html+=`
+  <div class="ad">
+   <b>${ad.title}</b><br>
+   <img src="${ad.image}" width="100%">
+   <button onclick="editAd(${ad.id})">Edit</button>
+   ${currentUser.role==="admin"?`<button onclick="deleteAd(${ad.id})">Delete</button>`:""}
+  </div>`;
+ });
+ adsList.innerHTML=html;
+}
+
+// RENDER STATS
+function renderStats(){
+ let html="";
+ for(let id in stats.ads){
+  let s=stats.ads[id];
+  html+=`<p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks</p>`;
+ }
+ statsBox.innerHTML=html;
+}
+
+// TOGGLE STATS
+function toggleStats(){
+ statsBox.style.display = statsBox.style.display==="none"?"block":"none";
+}
+
+// EDIT
+function editAd(id){
+ let ad=ads.find(a=>a.id==id);
+ id.value=ad.id;
+ title.value=ad.title;
+ image.value=ad.image;
+ link.value=ad.link;
+ category.value=ad.category;
+}
+
+// SAVE
+function saveAd(){
+ let idVal=id.value;
+
+ let ad={
+  id:Number(idVal||Date.now()),
+  title:title.value,
+  image:image.value,
+  link:link.value,
+  category:category.value
+ };
+
+ let i=ads.findIndex(a=>a.id==ad.id);
+
+ if(i>-1) ads[i]=ad;
+ else{
+  ads.push(ad);
+  stats.ads[ad.id]={views:0,clicks:0};
+ }
+
+ renderAds();
+}
+
+// DELETE
+function deleteAd(idVal){
+ ads=ads.filter(a=>a.id!=idVal);
+ delete stats.ads[idVal];
+ renderAds();
+}
+
+// SAVE GITHUB
+async function saveAll(){
+ let t=token.value;
+
+ await update("ads.json",ads,shaAds,t);
+ await update("stats.json",stats,shaStats,t);
+
+ alert("Saved!");
+}
+
+async function update(path,data,sha,t){
+ await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+  method:"PUT",
+  headers:{
+   "Authorization":"token "+t,
+   "Content-Type":"application/json"
+  },
+  body:JSON.stringify({
+   message:"update",
+   content:btoa(JSON.stringify(data,null,2)),
+   sha:sha
+  })
+ });
 }
 </script>
 
