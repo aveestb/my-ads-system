@@ -78,37 +78,60 @@ button:hover {
 
 </head>
 <body>
+
+
 <div id="loginBox">
   <h2>🔐 Login Panel</h2>
+
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
+
+  <p id="loginError" style="color:#f87171;text-align:center;display:none;">
+    ❌ Username বা Password ভুল
+  </p>
+
   <button onclick="login()">Login</button>
 </div>
 
 <div id="mainPanel" style="display:none;">
-
+  
 <h2>🔐 Ads Control Panel</h2>
 
 <script>
 // 🔐 USERS SYSTEM
 const users = [
     {user:"admin", pass:"7931", role:"admin"},
-    {user:"client1", pass:"1111", role:"client"},
+    {user:"client1", pass:"1111", role:"Ami"},
     {user:"client2", pass:"2222", role:"client"},
     {user:"client3", pass:"3333", role:"client"},
     {user:"client4", pass:"4444", role:"client"},
     {user:"client5", pass:"5555", role:"client"}
 ];
 
-let username = prompt("Username");
-let password = prompt("Password");
+let currentUser;
 
-let currentUser = users.find(u => u.user === username && u.pass === password);
+function login() {
+    let username = document.getElementById("username").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let errorBox = document.getElementById("loginError");
 
-if (!currentUser) {
-    document.body.innerHTML = "<h2 style='text-align:center;margin-top:20%'>Access Denied 🚫</h2>";
-    throw new Error("Blocked");
-}
+    let user = users.find(u => u.user === username && u.pass === password);
+
+    if (!user) {
+        errorBox.style.display = "block";
+        return;
+    }
+
+    // success
+    currentUser = user;
+
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainPanel").style.display = "block";
+
+    document.getElementById("roleInfo").innerHTML =
+        "Logged in as: <b>" + user.user + "</b> (" + user.role + ")";
+
+    errorBox.style.display = "nonclient
 </script>
 
 <p id="roleInfo"></p>
