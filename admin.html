@@ -5,7 +5,8 @@
 <meta charset="UTF-8">
 <title>Ads Admin Panel</title>
 
-<style>body {
+<style>
+body {
   font-family: 'Segoe UI', Arial;
   background: #0f172a;
   color: #fff;
@@ -14,33 +15,29 @@
   padding: 15px;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+h2 { text-align: center; }
 
 #loginBox {
   background: #1e293b;
   padding: 20px;
   border-radius: 12px;
   margin-top: 50px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
+
 #loginError {
   background: rgba(248,113,113,0.1);
   padding: 8px;
   border-radius: 6px;
-  margin-top: 5px;
-  font-size: 14px;
+  display: none;
+  text-align:center;
 }
-  
+
 input {
   width: 100%;
   padding: 12px;
   margin: 6px 0;
   border-radius: 8px;
   border: none;
-  outline: none;
   background: #334155;
   color: #fff;
 }
@@ -49,43 +46,33 @@ button {
   width: 100%;
   padding: 12px;
   margin: 6px 0;
-  border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border: none;
+  background: linear-gradient(135deg,#3b82f6,#6366f1);
   color: white;
-  font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: scale(1.03);
-  opacity: 0.9;
 }
 
 .ad {
   background: #1e293b;
-  border-radius: 12px;
   padding: 10px;
+  border-radius: 10px;
   margin: 10px 0;
 }
 
-.ad img {
-  border-radius: 10px;
-}
-
 #statsBox {
-  background: #020617;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
+  display:none;
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
 }
-
 </style>
 
 </head>
+
 <body>
 
+<!-- LOGIN -->
 
 <div id="loginBox">
   <h2>🔐 Login Panel</h2>
@@ -93,60 +80,24 @@ button:hover {
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
 
-  <p id="loginError" style="color:#f87171;text-align:center;display:none;">
-    ❌ Username বা Password ভুল
-  </p>
+  <p id="loginError">❌ Username বা Password ভুল</p>
 
-  <button onclick="login()">Login</button>
+<button onclick="login()">Login</button>
+
 </div>
 
+<!-- MAIN PANEL -->
+
 <div id="mainPanel" style="display:none;">
-  
+
 <h2>🔐 Ads Control Panel</h2>
-
-<script>
-// 🔐 USERS SYSTEM
-const users = [
-    {user:"admin", pass:"7931", role:"admin"},
-    {user:"client1", pass:"1111", role:"client"},
-    {user:"client2", pass:"2222", role:"client"},
-    {user:"client3", pass:"3333", role:"client"},
-    {user:"client4", pass:"4444", role:"client"},
-    {user:"client5", pass:"5555", role:"client"}
-];
-
-let currentUser;
-
-function login() {
-    let username = document.getElementById("username").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let errorBox = document.getElementById("loginError");
-
-    let user = users.find(u => u.user === username && u.pass === password);
-
-    if (!user) {
-        errorBox.style.display = "block";
-        return;
-    }
-
-    // success
-    currentUser = user;
-
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("mainPanel").style.display = "block";
-
-    document.getElementById("roleInfo").innerHTML =
-        "Logged in as: <b>" + user.user + "</b> (" + user.role + ")";
-
-    errorBox.style.display = "nonclient
-</script>
 
 <p id="roleInfo"></p>
 
 <input type="password" id="token" placeholder="GitHub Token">
 
 <h3>Add / Edit Ad</h3>
-<input id="id" placeholder="ID (edit হলে)">
+<input id="id" placeholder="ID">
 <input id="title" placeholder="Title">
 <input id="image" placeholder="Image URL">
 <input id="link" placeholder="Link">
@@ -156,142 +107,163 @@ function login() {
 <h3>Ads List</h3>
 <div id="adsList"></div>
 
+<button onclick="saveAll()">💾 Save to GitHub</button> <button onclick="toggleStats()">📊 Analytics</button>
 
-<button onclick="saveAll()">💾 Save to GitHub</button>
+<div id="statsBox"></div>
 
-<button onclick="toggleStats()">📊 Analytics</button>
-<h3>📊 Analytics</h3>
-<div id="statsBox" style="display:none;"></div>
+</div>
 
 <script>
+// USERS
+const users = [
+ {user:"admin", pass:"7931", role:"admin"},
+ {user:"client1", pass:"1111", role:"client"},
+ {user:"client2", pass:"2222", role:"client"},
+ {user:"client3", pass:"3333", role:"client"},
+ {user:"client4", pass:"4444", role:"client"},
+ {user:"client5", pass:"5555", role:"client"}
+];
+
+let currentUser;
 const repo = "aveestb/my-ads-system";
 
 let ads = [];
-let stats = { ads:{}, geo:{}, device:{} };
-let shaAds = "", shaStats = "";
+let stats = {ads:{}};
+let shaAds="", shaStats="";
 
-// role show
-document.getElementById("roleInfo").innerHTML =
-"Logged in as: <b>" + currentUser.user + "</b> (" + currentUser.role + ")";
+// LOGIN
+function login(){
+ let u = username.value.trim();
+ let p = password.value.trim();
+ let err = loginError;
 
-// load data
-async function loadAll() {
-    let adRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`);
-    let statRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`);
+ let user = users.find(x=>x.user===u && x.pass===p);
 
-    let adData = await adRes.json();
-    let statData = await statRes.json();
+ if(!user){
+  err.style.display="block";
+  return;
+ }
 
-    shaAds = adData.sha;
-    shaStats = statData.sha;
+ currentUser = user;
 
-    ads = JSON.parse(atob(adData.content));
-    stats = JSON.parse(atob(statData.content));
+ loginBox.style.display="none";
+ mainPanel.style.display="block";
 
-    renderAds();
-    renderStats();
+ roleInfo.innerHTML = `Logged in as <b>${user.user}</b> (${user.role})`;
+
+ err.style.display="none";
+
+ loadAll(); // login এর পর load
 }
 
-// render ads
-function renderAds() {
-    let html = "";
-    ads.forEach(ad => {
-        html += `
-        <div class="ad">
-            <b>${ad.title}</b> (${ad.category})<br>
-            <img src="${ad.image}" width="100%"><br>
-            <button onclick="editAd(${ad.id})">Edit</button>
-            ${currentUser.role === "admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>` : ""}
-        </div>`;
-    });
-    document.getElementById("adsList").innerHTML = html;
+// LOAD DATA
+async function loadAll(){
+ let a = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
+ let s = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
+
+ shaAds=a.sha; shaStats=s.sha;
+
+ ads = JSON.parse(atob(a.content));
+ stats = JSON.parse(atob(s.content));
+
+ renderAds();
+ renderStats();
 }
 
-// render analytics (NEW STRUCTURE)
-function renderStats() {
-    let html = "";
-    for (let id in stats.ads) {
-        let s = stats.ads[id];
-        html += `<p>Ad ${id} → Views: ${s.views || 0}, Clicks: ${s.clicks || 0}, CTR: ${s.ctr || 0}%</p>`;
-    }
-    document.getElementById("statsBox").innerHTML = html;
+// ADS UI
+function renderAds(){
+ let html="";
+ ads.forEach(ad=>{
+  html+=`
+  <div class="ad">
+   <b>${ad.title}</b><br>
+   <img src="${ad.image}" width="100%">
+   <button onclick="editAd(${ad.id})">Edit</button>
+   ${currentUser.role==="admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>`:""}
+  </div>`;
+ });
+ adsList.innerHTML=html;
 }
 
-// edit (FIXED)
-function editAd(id) {
-    let ad = ads.find(a => a.id == id);
-
-    document.getElementById("id").value = ad.id;
-    document.getElementById("title").value = ad.title;
-    document.getElementById("image").value = ad.image;
-    document.getElementById("link").value = ad.link;
-    document.getElementById("category").value = ad.category;
+// STATS UI
+function renderStats(){
+ let html="";
+ for(let id in stats.ads){
+  let s=stats.ads[id];
+  html+=`<p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks</p>`;
+ }
+ statsBox.innerHTML=html;
 }
 
-// save ad (WITH stats auto create)
-function saveAd() {
-    let id = document.getElementById("id").value;
-
-    let ad = {
-        id: Number(id || Date.now()),
-        title: document.getElementById("title").value,
-        image: document.getElementById("image").value,
-        link: document.getElementById("link").value,
-        category: document.getElementById("category").value
-    };
-
-    let index = ads.findIndex(a => a.id == ad.id);
-
-    if (index > -1) ads[index] = ad;
-    else {
-        ads.push(ad);
-
-        // 📊 create stats automatically
-        if (!stats.ads[ad.id]) {
-            stats.ads[ad.id] = { views: 0, clicks: 0, ctr: 0 };
-        }
-    }
-
-    renderAds();
+// TOGGLE
+function toggleStats(){
+ statsBox.style.display = statsBox.style.display==="none"?"block":"none";
 }
 
-// delete (admin only + stats remove)
-function deleteAd(id) {
-    ads = ads.filter(a => a.id != id);
-
-    delete stats.ads[id];
-
-    renderAds();
-    renderStats();
+// EDIT
+function editAd(id){
+ let ad=ads.find(a=>a.id==id);
+ id.value=ad.id;
+ title.value=ad.title;
+ image.value=ad.image;
+ link.value=ad.link;
+ category.value=ad.category;
 }
 
-// save to github
-async function saveAll() {
-    let token = document.getElementById("token").value;
+// SAVE AD
+function saveAd(){
+ let idVal = id.value;
 
-    await updateFile("ads.json", ads, shaAds, token);
-    await updateFile("stats.json", stats, shaStats, token);
+ let ad={
+  id:Number(idVal||Date.now()),
+  title:title.value,
+  image:image.value,
+  link:link.value,
+  category:category.value
+ };
 
-    alert("Saved to GitHub!");
+ let i=ads.findIndex(a=>a.id==ad.id);
+
+ if(i>-1) ads[i]=ad;
+ else{
+  ads.push(ad);
+  stats.ads[ad.id]={views:0,clicks:0};
+ }
+
+ renderAds();
 }
 
-// update file (FIXED headers)
-async function updateFile(path, content, sha, token) {
-    await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: "PUT",
-        headers: {
-            "Authorization": "token " + token,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: "update " + path,
-            content: btoa(JSON.stringify(content, null, 2)),
-            sha: sha
-        })
-    });
+// DELETE
+function deleteAd(idVal){
+ ads=ads.filter(a=>a.id!=idVal);
+ delete stats.ads[idVal];
+ renderAds();
 }
 
-loadAll();
+// SAVE GITHUB
+async function saveAll(){
+ let t=token.value;
+
+ await update("ads.json",ads,shaAds,t);
+ await update("stats.json",stats,shaStats,t);
+
+ alert("Saved!");
+}
+
+async function update(path,data,sha,t){
+ await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+  method:"PUT",
+  headers:{
+   "Authorization":"token "+t,
+   "Content-Type":"application/json"
+  },
+  body:JSON.stringify({
+   message:"update",
+   content:btoa(JSON.stringify(data,null,2)),
+   sha:sha
+  })
+ });
+}
 </script>
 
 </body>
