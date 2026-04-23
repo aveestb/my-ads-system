@@ -5,11 +5,75 @@
 <meta charset="UTF-8">
 <title>Ads Admin Panel</title>
 
-<style>
-body { font-family: Arial; max-width: 700px; margin: auto; }
-input, button { width: 100%; padding: 10px; margin: 5px 0; }
-.ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
-h2 { text-align: center; }
+<style>body {
+  font-family: 'Segoe UI', Arial;
+  background: #0f172a;
+  color: #fff;
+  max-width: 700px;
+  margin: auto;
+  padding: 15px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#loginBox {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 50px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: #334155;
+  color: #fff;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+.ad {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.ad img {
+  border-radius: 10px;
+}
+
+#statsBox {
+  background: #020617;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
 </style>
 
 </head>
@@ -54,10 +118,12 @@ if (!currentUser) {
 <h3>Ads List</h3>
 <div id="adsList"></div>
 
-<h3>📊 Analytics</h3>
-<div id="statsBox"></div>
 
 <button onclick="saveAll()">💾 Save to GitHub</button>
+
+<button onclick="toggleStats()">📊 Analytics</button>
+
+<div id="statsBox" style="display:none;"></div>
 
 <script>
 const repo = "aveestb/my-ads-system";
