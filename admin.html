@@ -220,6 +220,37 @@ button {
 
 </div>
 
+
+<!-- MAIN PANEL -->
+
+<div id="mainPanel" style="display:none;">
+
+<h2>🔐 Ads Control Panel</h2>
+
+<p id="roleInfo"></p>
+
+<input type="password" id="token" placeholder="GitHub Token">
+
+<h3>Add / Edit Ad</h3>
+<input id="id" placeholder="ID">
+<input id="title" placeholder="Title">
+<input id="image" placeholder="Image URL">
+<input id="link" placeholder="Link">
+<input id="category" placeholder="Category">
+<button onclick="saveAd()">Save Ad</button>
+
+<h3>Ads List</h3>
+<div id="adsList"></div>
+
+<button onclick="saveAll()">💾 Save to GitHub</button> <button onclick="toggleStats()">📊 Analytics</button>
+
+<div id="statsBox"></div>
+
+</div>
+
+
+
+        
 <script>
 // USERS
 const users = [
