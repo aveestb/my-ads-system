@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ads Admin Panel</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: auto; }
+        input, button { width: 100%; margin: 5px 0; padding: 10px; }
+        .ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<h2>Ads Admin Panel</h2>
+
+<input type="password" id="token" placeholder="GitHub Token">
+
+<h3>Add New Ad</h3>
+<input id="title" placeholder="Title">
+<input id="image" placeholder="Image URL">
+<input id="link" placeholder="Link URL">
+<button onclick="addAd()">Add Ad</button>
+
+<h3>Ads List</h3>
+<div id="adsList"></div>
+
+<button onclick="saveAds()">💾 Save to GitHub</button>
+
+<script>
+const repo = "yourusername/my-ads-system";
+const filePath = "ads.json";
+
+let ads = [];
+let sha = "";
+
+// Load ads.json
+async function loadAds() {
+    let res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`);
+    let data = await res.json();
+
+    sha = data.sha;
+    let content = atob(data.content);
+    ads = JSON.parse(content);
+
+    renderAds();
+}
+
+function renderAds() {
+    let html = "";
+    ads.forEach((ad, i) => {
+        html += `
+            <div class="ad">
+                <b>${ad.title}</b><br>
+                <img src="${ad.image}" width="100%"><br>
+                <button onclick="deleteAd(${i})">Delete</button>
+            </div>
+        `;
+    });
+    document.getElementById("adsList").innerHTML = html;
+}
+
+function addAd() {
+    let title = document.getElementById("title").value;
+    let image = document.getElementById("image").value;
+    let link = document.getElementById("link").value;
+
+    ads.push({ title, image, link });
+    renderAds();
+}
+
+function deleteAd(i) {
+    ads.splice(i, 1);
+    renderAds();
+}
+
+async function saveAds() {
+    let token = document.getElementById("token").value;
+
+    let content = btoa(JSON.stringify(ads, null, 2));
+
+    let res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: "PUT",
+        headers: {
+            "Authorization": "token " + token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: "Update ads",
+            content: content,
+            sha: sha
+        })
+    });
+
+    let data = await res.json();
+    alert("Saved!");
+}
+
+loadAds();
+</script>
+
+</body>
+</html>
