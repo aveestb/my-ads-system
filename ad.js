@@ -4,8 +4,8 @@
     const category = document.getElementById(adBoxId)?.dataset.category || "all";
 
     async function loadAd() {
-        let ads = await fetch("https://techlystb.github.io/my-ads-system/ads.json").then(r => r.json());
-        let stats = await fetch("https://techlystb.github.io/my-ads-system/stats.json").then(r => r.json());
+        let ads = await fetch("https://aveestb.github.io/my-ads-system/ads.json").then(r => r.json());
+        let stats = await fetch("https://aveestb.github.io/my-ads-system/stats.json").then(r => r.json());
 
         // filter by category
         if (category !== "all") {
