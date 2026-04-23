@@ -1,66 +1,155 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Ads Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Login Pro</title>
+
 <style>
-body { font-family: Arial; max-width: 700px; margin: auto; }
-.ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
-h2 { text-align: center; }
-</style>
-<style>
-
-
-
-#loginBox {
-  background: #1e293b;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 50px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle, #01030a, #000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-/* 📱 Mobile responsive */
-
-
-  #loginBox {
-    margin-top: 20px;
+.phone {
+    width: 320px;
+    height: 600px;
+    border-radius: 40px;
+    background: #020617;
     padding: 15px;
-  }
-
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: none;
-  background: #334155;
-  color: #fff;
+    position: relative;
+    overflow: hidden;
 }
 
-  h2 {
-    font-size: 20px;
-  }
+.phone::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 40px;
+    background: linear-gradient(120deg, #0ff, #00f, #0ff);
+    animation: borderMove 4s linear infinite;
+    z-index: 0;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg,#3b82f6,#6366f1);
-  color: white;
-  cursor: pointer;
+.phone::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    background: #020617;
+    border-radius: 36px;
+    z-index: 1;
 }
 
+@keyframes borderMove {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-#statsBox {
-  display:none;
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
+.screen {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login Button */
+#loginBtn {
+    padding: 12px 30px;
+    border: 2px solid #0ff;
+    color: #0ff;
+    background: transparent;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #0ff;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 10px #0ff; }
+    50% { box-shadow: 0 0 25px #0ff; }
+    100% { box-shadow: 0 0 10px #0ff; }
+}
+
+/* Login Box */
+.login-box {
+    margin-top: 20px;
+    width: 80%;
+    opacity: 0;
+    transform: translateY(50px) scale(0.8);
+    pointer-events: none;
+    transition: 0.5s;
+}
+
+.login-box.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.login-box h2 {
+    color: #0ff;
+    text-align: center;
+    text-shadow: 0 0 10px #0ff;
+}
+
+.glow-input {
+    width: 100%;
+    margin: 12px 0;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #0ff;
+    background: transparent;
+    color: #0ff;
+    outline: none;
+}
+
+.glow-input:focus {
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+}
+
+.glow-input.typing {
+    box-shadow: 0 0 15px #0ff, 0 0 30px #0ff, inset 0 0 10px #0ff;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    border: none;
+    background: #0ff;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    box-shadow: 0 0 20px #0ff, 0 0 50px #0ff;
+}
+
+/* Hidden main panel */
+#mainPanel {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #020617;
+    color: white;
+    padding: 20px;
+    overflow-y: auto;
 }
 </style>
 
@@ -68,50 +157,41 @@ button {
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN UI -->
 
-<div id="loginBox">
-  <h2>🔐 Login Panel</h2>
+<div class="phone" id="loginUI">
+    <div class="screen">
 
-  <input id="username" placeholder="Username">
-  <div style="position:relative;">
-  <input id="password" type="password" placeholder="Password">
-  <span onclick="togglePassword()" id="eyeBtn"
-        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;">
-        👁
-  </span>
+```
+    <button id="loginBtn">⚡ Login</button>
+
+    <div class="login-box" id="loginBox">
+        <h2>Access System</h2>
+
+        <input id="username" type="text" placeholder="Username" class="glow-input">
+        <input id="password" type="password" placeholder="Password" class="glow-input">
+
+        <p id="errorMsg" style="color:#ff6b6b; text-align:center; display:none;">
+            ❌ Username বা Password ভুল
+        </p>
+
+        <button class="submit-btn" onclick="login()">ENTER</button>
+    </div>
+
 </div>
-
-  <p id="loginError">❌ Username বা Password ভুল</p>
-
-<button onclick="login()">Login</button>
+```
 
 </div>
 
 <!-- MAIN PANEL -->
 
-<div id="mainPanel" style="display:none;">
+<div id="mainPanel">
+    <h2>🔐 Ads Control Panel</h2>
+    <p id="roleInfo"></p>
 
-<h2>🔐 Ads Control Panel</h2>
-
-<p id="roleInfo"></p>
-
-<input type="password" id="token" placeholder="GitHub Token">
-
-<h3>Add / Edit Ad</h3>
-<input id="id" placeholder="ID">
-<input id="title" placeholder="Title">
-<input id="image" placeholder="Image URL">
-<input id="link" placeholder="Link">
-<input id="category" placeholder="Category">
-<button onclick="saveAd()">Save Ad</button>
-
-<h3>Ads List</h3>
-<div id="adsList"></div>
-
-<button onclick="saveAll()">💾 Save to GitHub</button> <button onclick="toggleStats()">📊 Analytics</button>
-
-<div id="statsBox"></div>
+```
+<button onclick="logout()">🚪 Logout</button>
+```
 
 </div>
 
@@ -126,161 +206,63 @@ const users = [
  {user:"client5", pass:"5555", role:"client"}
 ];
 
-let currentUser;
-const repo = "aveestb/my-ads-system";
+const btn = document.getElementById("loginBtn");
+const box = document.getElementById("loginBox");
 
-let ads = [];
-let stats = {ads:{}};
-let shaAds="", shaStats="";
+// open animation
+btn.onclick = () => {
+    box.classList.toggle("active");
+};
+
+// typing glow
+document.querySelectorAll(".glow-input").forEach(input=>{
+    input.addEventListener("input", ()=>{
+        input.classList.toggle("typing", input.value.length>0);
+    });
+});
 
 // LOGIN
 function login(){
- let u = username.value.trim();
- let p = password.value.trim();
- let err = loginError;
+    let u = document.getElementById("username").value.trim();
+    let p = document.getElementById("password").value.trim();
+    let err = document.getElementById("errorMsg");
 
- let user = users.find(x=>x.user===u && x.pass===p);
+    let user = users.find(x=>x.user===u && x.pass===p);
 
- if(!user){
-  err.style.display="block";
-  return;
- }
-
- currentUser = user;
-
- loginBox.style.display="none";
- mainPanel.style.display="block";
-
- roleInfo.innerHTML = `Logged in as <b>${user.user}</b> (${user.role})`;
-
- err.style.display="none";
-
- loadAll(); // login এর পর load
-}
-
-
-function togglePassword() {
-    let pass = document.getElementById("password");
-    let eye = document.getElementById("eyeBtn");
-
-    if (pass.type === "password") {
-        pass.type = "text";
-        eye.innerHTML = "🙈";
-    } else {
-        pass.type = "password";
-        eye.innerHTML = "👁";
+    if(!user){
+        err.style.display="block";
+        return;
     }
+
+    err.style.display="none";
+
+    document.getElementById("loginUI").style.display="none";
+    document.getElementById("mainPanel").style.display="block";
+
+    document.getElementById("roleInfo").innerHTML =
+     `Logged in as <b>${user.user}</b> (${user.role})`;
+
+    localStorage.setItem("adsUser", JSON.stringify(user));
 }
 
+// AUTO LOGIN
+window.onload = function(){
+    let saved = localStorage.getItem("adsUser");
+    if(saved){
+        let user = JSON.parse(saved);
 
-  
-// LOAD DATA
-async function loadAll(){
- let a = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
- let s = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
+        document.getElementById("loginUI").style.display="none";
+        document.getElementById("mainPanel").style.display="block";
 
- shaAds=a.sha; shaStats=s.sha;
+        document.getElementById("roleInfo").innerHTML =
+         `Logged in as <b>${user.user}</b> (${user.role})`;
+    }
+};
 
- ads = JSON.parse(atob(a.content));
- stats = JSON.parse(atob(s.content));
-
- renderAds();
- renderStats();
-}
-
-// ADS UI
-function renderAds(){
- let html="";
- ads.forEach(ad=>{
-  html+=`
-  <div class="ad">
-   <b>${ad.title}</b><br>
-   <img src="${ad.image}" width="100%">
-   <button onclick="editAd(${ad.id})">Edit</button>
-   ${currentUser.role==="admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>`:""}
-  </div>`;
- });
- adsList.innerHTML=html;
-}
-
-// STATS UI
-function renderStats(){
- let html="";
- for(let id in stats.ads){
-  let s=stats.ads[id];
-  html+=`<p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks</p>`;
- }
- statsBox.innerHTML=html;
-}
-
-// TOGGLE
-function toggleStats(){
- statsBox.style.display = statsBox.style.display==="none"?"block":"none";
-}
-
-// EDIT
-function editAd(id){
- let ad=ads.find(a=>a.id==id);
- id.value=ad.id;
- title.value=ad.title;
- image.value=ad.image;
- link.value=ad.link;
- category.value=ad.category;
-}
-
-// SAVE AD
-function saveAd(){
- let idVal = id.value;
-
- let ad={
-  id:Number(idVal||Date.now()),
-  title:title.value,
-  image:image.value,
-  link:link.value,
-  category:category.value
- };
-
- let i=ads.findIndex(a=>a.id==ad.id);
-
- if(i>-1) ads[i]=ad;
- else{
-  ads.push(ad);
-  stats.ads[ad.id]={views:0,clicks:0};
- }
-
- renderAds();
-}
-
-// DELETE
-function deleteAd(idVal){
- ads=ads.filter(a=>a.id!=idVal);
- delete stats.ads[idVal];
- renderAds();
-}
-
-// SAVE GITHUB
-async function saveAll(){
- let t=token.value;
-
- await update("ads.json",ads,shaAds,t);
- await update("stats.json",stats,shaStats,t);
-
- alert("Saved!");
-}
-
-async function update(path,data,sha,t){
- await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
-  method:"PUT",
-  headers:{
-   "Authorization":"token "+t,
-   "Content-Type":"application/json"
-  },
-  body:JSON.stringify({
-   message:"update",
-   content:btoa(JSON.stringify(data,null,2)),
-   sha:sha
-  })
- });
+// LOGOUT
+function logout(){
+    localStorage.removeItem("adsUser");
+    location.reload();
 }
 </script>
 
