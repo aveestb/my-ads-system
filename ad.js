@@ -1,4 +1,13 @@
 (function () {
+
+    // 🔒 Domain Lock (এখানে বসাতে হবে)
+    const allowedDomains = ["https://techlystb.blogspot.com", "https://techlyapk.blogspot.com"];
+
+    if (!allowedDomains.includes(location.hostname)) {
+        console.log("Unauthorized domain blocked");
+        return; // এখানেই stop
+    }
+
     const adBoxId = "myAdBox";
 
     function loadAd() {
@@ -19,8 +28,10 @@
     }
 
     loadAd();
-
-    // auto rotate every 5 sec
     setInterval(loadAd, 5000);
 
 })();
+
+
+
+
