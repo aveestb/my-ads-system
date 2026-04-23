@@ -1,44 +1,44 @@
 [
   {
     "id": 1,
-    "title": "Free Image Compressor",
-    "image": "https://aveestb.github.io/my-ads-system/img1.jpg",
-    "link": "https://yoursite.com/tool1",
+    "title": "Image Compressor",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_0_0.png",
+    "link": "https://techlystb.blogspot.com/p/online-webp-converter.html",
     "category": "tools"
   },
   {
     "id": 2,
-    "title": "Color Converter Tool",
-    "image": "https://aveestb.github.io/my-ads-system/img2.jpg",
-    "link": "https://yoursite.com/tool2",
+    "title": "Color Converter",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_0_1.png",
+    "link": "https://techlystb.blogspot.com/p/box-shadow-generator.html",
     "category": "tools"
   },
   {
     "id": 3,
-    "title": "YouTube Thumbnail Downloader",
-    "image": "https://aveestb.github.io/my-ads-system/img3.jpg",
-    "link": "https://yoursite.com/tool3",
+    "title": "Thumbnail Downloader",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_0_2.png",
+    "link": "https://techlystb.blogspot.com/p/life-calculate.html",
     "category": "tools"
   },
   {
     "id": 4,
-    "title": "SEO Blog Guide",
-    "image": "https://aveestb.github.io/my-ads-system/img4.jpg",
-    "link": "https://yoursite.com/post1",
+    "title": "SEO Guide",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_1_0.png",
+    "link": "https://techlystb.blogspot.com/p/age-calculator-online.html",
     "category": "blog"
   },
   {
     "id": 5,
-    "title": "Make Money Online Tips",
-    "image": "https://aveestb.github.io/my-ads-system/img5.jpg",
-    "link": "https://yoursite.com/post2",
+    "title": "Make Money Tips",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_1_1.png",
+    "link": "https://techlystb.blogspot.com/p/unpacker.html",
     "category": "blog"
   },
   {
     "id": 6,
-    "title": "Best Free Tools List",
-    "image": "https://aveestb.github.io/my-ads-system/img6.jpg",
-    "link": "https://yoursite.com/post3",
+    "title": "Best Free Tools",
+    "image": "https://aveestb.github.io/my-ads-system/img/banner_1_2.png",
+    "link": "https://techlystb.blogspot.com/p/dob-age-calculator.html",
     "category": "blog"
   }
 ]
