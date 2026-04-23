@@ -1,29 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ads Admin Panel</title>
-    <style>
-        body { font-family: Arial; max-width: 600px; margin: auto; }
-        input, button { width: 100%; margin: 5px 0; padding: 10px; }
-        .ad { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
-    </style>
-</head>
-<body>
-
 <h2>Ads Admin Panel</h2>
 
 <input type="password" id="token" placeholder="GitHub Token">
 
-<h3>Add New Ad</h3>
+<h3>Add / Edit Ad</h3>
+<input id="id" placeholder="ID (edit করতে)">
 <input id="title" placeholder="Title">
 <input id="image" placeholder="Image URL">
-<input id="link" placeholder="Link URL">
-<button onclick="addAd()">Add Ad</button>
+<input id="link" placeholder="Link">
+<input id="category" placeholder="Category">
+<button onclick="saveAd()">Save Ad</button>
 
 <h3>Ads List</h3>
 <div id="adsList"></div>
 
-<button onclick="saveAds()">💾 Save to GitHub</button>
+<h3>📊 Analytics</h3>
+<div id="statsBox"></div>
+
+<button onclick="saveAll()">💾 Save to GitHub</button>
 
 <script>
 
@@ -32,90 +25,99 @@ if (prompt("Enter password") !== "7931") {
     document.body.innerHTML = "Access Denied";
     throw new Error("Unauthorized");
 }
-
-const repo = "techlystb/my-ads-system";
-const filePath = "ads.json";
-
-let ads = [];
-let sha = "";
-
-// নিচে বাকি code... your username 
     
-<script>
 const repo = "techlystb/my-ads-system";
 const filePath = "ads.json";
-
 let ads = [];
-let sha = "";
+let stats = [];
+let shaAds = "", shaStats = "";
 
-// Load ads.json
-async function loadAds() {
-    let res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`);
-    let data = await res.json();
+async function loadAll() {
+    let adRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`);
+    let statRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`);
 
-    sha = data.sha;
-    let content = atob(data.content);
-    ads = JSON.parse(content);
+    let adData = await adRes.json();
+    let statData = await statRes.json();
+
+    shaAds = adData.sha;
+    shaStats = statData.sha;
+
+    ads = JSON.parse(atob(adData.content));
+    stats = JSON.parse(atob(statData.content));
 
     renderAds();
+    renderStats();
 }
 
 function renderAds() {
     let html = "";
-    ads.forEach((ad, i) => {
+    ads.forEach(ad => {
         html += `
-            <div class="ad">
-                <b>${ad.title}</b><br>
-                <img src="${ad.image}" width="100%"><br>
-                <button onclick="deleteAd(${i})">Delete</button>
-            </div>
-        `;
+        <div>
+            <b>${ad.title}</b> (${ad.category})
+            <button onclick="editAd(${ad.id})">Edit</button>
+        </div>`;
     });
     document.getElementById("adsList").innerHTML = html;
 }
 
-function addAd() {
-    let title = document.getElementById("title").value;
-    let image = document.getElementById("image").value;
-    let link = document.getElementById("link").value;
+function renderStats() {
+    let html = "";
+    for (let id in stats) {
+        html += `<p>Ad ${id} → Views: ${stats[id].views}, Clicks: ${stats[id].clicks}</p>`;
+    }
+    document.getElementById("statsBox").innerHTML = html;
+}
 
-    ads.push({ title, image, link });
+function editAd(id) {
+    let ad = ads.find(a => a.id == id);
+    document.getElementById("id").value = ad.id;
+    document.getElementById("title").value = ad.title;
+    document.getElementById("image").value = ad.image;
+    document.getElementById("link").value = ad.link;
+    document.getElementById("category").value = ad.category;
+}
+
+function saveAd() {
+    let id = document.getElementById("id").value;
+
+    let ad = {
+        id: Number(id || Date.now()),
+        title: title.value,
+        image: image.value,
+        link: link.value,
+        category: category.value
+    };
+
+    let index = ads.findIndex(a => a.id == ad.id);
+
+    if (index > -1) ads[index] = ad;
+    else ads.push(ad);
+
     renderAds();
 }
 
-function deleteAd(i) {
-    ads.splice(i, 1);
-    renderAds();
-}
-
-async function saveAds() {
+async function saveAll() {
     let token = document.getElementById("token").value;
 
-    let content = btoa(JSON.stringify(ads, null, 2));
+    await updateFile("ads.json", ads, shaAds, token);
+    await updateFile("stats.json", stats, shaStats, token);
 
-    let res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-        method: "PUT",
-        headers: {
-            "Authorization": "token " + token,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: "Update ads",
-            content: content,
-            sha: sha
-        })
-    });
-
-    let data = await res.json();
     alert("Saved!");
 }
 
-loadAds();
+async function updateFile(path, content, sha, token) {
+    await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "PUT",
+        headers: {
+            "Authorization": "token " + token
+        },
+        body: JSON.stringify({
+            message: "update " + path,
+            content: btoa(JSON.stringify(content, null, 2)),
+            sha: sha
+        })
+    });
+}
 
-
- 
-
-</script>
-
-</body>
-</html>
+loadAll()yourusername
