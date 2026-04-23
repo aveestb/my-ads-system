@@ -161,6 +161,7 @@ button {
 
 #statsBox {
     display:none;
+    transition: 0.3s;
     background:#020617;
     padding:10px;
     border-radius:10px;
@@ -381,9 +382,16 @@ function renderStats(){
 }
 
 // ================= TOGGLE STATS =================
-function toggleStats(){
- statsBox.style.display = statsBox.style.display==="none"?"block":"none";
+  function toggleStats(){
+ let box = document.getElementById("statsBox");
+
+ if(box.style.display === "none" || box.style.display === ""){
+   box.style.display = "block";
+ } else {
+   box.style.display = "none";
+ }
 }
+
 
 // ================= EDIT =================
 function editAd(id){
