@@ -160,12 +160,37 @@ button {
 }
 
 #statsBox {
-    display:none;
-    transition: 0.3s;
-    background:#020617;
-    padding:10px;
-    border-radius:10px;
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.5s ease;
+  background: #020617;
+  padding: 0 10px;
+  border-radius: 10px;
 }
+
+#statsBox.active {
+  max-height: 500px;
+  padding: 10px;
+}
+
+.graph {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 120px;
+  margin: 10px 0;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(180deg,#3b82f6,#6366f1);
+  border-radius: 5px;
+  transition: 0.4s;
+  text-align: center;
+  color: #fff;
+  font-size: 10px;
+}
+
 </style>
 
 </head>
@@ -220,8 +245,16 @@ button {
 
 <button onclick="saveAll()">💾 Save to GitHub</button> <button onclick="toggleStats()">📊 Analytics</button>
 
-<div id="statsBox"></div>
+<div id="statsBox">
+  <h3>📊 Analytics Dashboard</h3>
 
+  <div id="statsList"></div>
+
+  <h4>📈 Views Graph</h4>
+  <div id="viewsGraph" class="graph"></div>
+
+  <h4>🔥 Clicks Graph</h4>
+  <div id="clicksGraph" class="graph"></div>
 </div>
 
 
@@ -319,8 +352,9 @@ async function loadAll(){
 function renderAds(){
  let html="";
 
- ads.forEach(ad=>{
-
+ads.forEach(ad=>{
+ trackView(ad.id); // 👈 এটা যোগ করো
+    
   if(!stats.ads) stats.ads = {};
 
   if(!stats.ads[ad.id]){
@@ -349,48 +383,96 @@ function renderAds(){
 // ================= CLICK TRACK =================
 async function trackClick(adId, url){
 
+ // নিশ্চিত করা stats.ads আছে
  if(!stats.ads) stats.ads = {};
 
+ // যদি ad না থাকে create করো
  if(!stats.ads[adId]){
-  stats.ads[adId] = {views:0, clicks:0, ctr:0};
+   stats.ads[adId] = {views:0, clicks:0, ctr:0};
  }
 
+ // clicks বাড়াও
  stats.ads[adId].clicks++;
 
  // CTR calculate
- let v = stats.ads[adId].views || 1;
- let c = stats.ads[adId].clicks;
- stats.ads[adId].ctr = ((c / v) * 100).toFixed(2);
+ let v = stats.ads[adId].views || 0;
+ let c = stats.ads[adId].clicks || 0;
 
- console.log("CLICK:", adId, stats.ads[adId]);
+ stats.ads[adId].ctr = v > 0 ? ((c / v) * 100).toFixed(2) : 0;
 
- // save first
- await saveAll();
+ // UI update
+ renderStats();
 
- // open link
+ // 👉 optional: auto save to GitHub (recommended)
+ let token = document.getElementById("token").value;
+ if(token){
+   await update("stats.json", stats, shaStats, token);
+ }
+
+ // 👉 redirect to ad link
  window.open(url, "_blank");
 }
 
+
+function trackView(adId){
+
+ if(!stats.ads) stats.ads = {};
+
+ if(!stats.ads[adId]){
+   stats.ads[adId] = {views:0, clicks:0, ctr:0};
+ }
+
+ stats.ads[adId].views++;
+
+ let v = stats.ads[adId].views;
+ let c = stats.ads[adId].clicks || 0;
+
+ stats.ads[adId].ctr = v > 0 ? ((c / v) * 100).toFixed(2) : 0;
+}
+
+    
 // ================= RENDER STATS =================
 function renderStats(){
- let html="";
+
+ let listHTML = "";
+ let viewsHTML = "";
+ let clicksHTML = "";
+
+ let maxViews = 1;
+ let maxClicks = 1;
+
+ // find max for scaling
  for(let id in stats.ads){
-  let s=stats.ads[id];
-  html+=`<p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks / CTR: ${s.ctr||0}%</p>`;
+   maxViews = Math.max(maxViews, stats.ads[id].views || 0);
+   maxClicks = Math.max(maxClicks, stats.ads[id].clicks || 0);
  }
- statsBox.innerHTML=html;
+
+ for(let id in stats.ads){
+   let s = stats.ads[id];
+
+   listHTML += `
+   <p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks / CTR: ${s.ctr||0}%</p>
+   `;
+
+   let vHeight = (s.views / maxViews) * 100;
+   let cHeight = (s.clicks / maxClicks) * 100;
+
+   viewsHTML += `<div class="bar" style="height:${vHeight}%">${id}</div>`;
+   clicksHTML += `<div class="bar" style="height:${cHeight}%">${id}</div>`;
+ }
+
+ document.getElementById("statsList").innerHTML = listHTML;
+ document.getElementById("viewsGraph").innerHTML = viewsHTML;
+ document.getElementById("clicksGraph").innerHTML = clicksHTML;
 }
+
 
 // ================= TOGGLE STATS =================
-  function toggleStats(){
+ function toggleStats(){
  let box = document.getElementById("statsBox");
-
- if(box.style.display === "none" || box.style.display === ""){
-   box.style.display = "block";
- } else {
-   box.style.display = "none";
- }
+ box.classList.toggle("active");
 }
+
 
 
 // ================= EDIT =================
