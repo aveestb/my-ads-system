@@ -26,6 +26,22 @@
 <button onclick="saveAds()">💾 Save to GitHub</button>
 
 <script>
+
+// 🔒 Password Protection (এখানে বসবে)
+if (prompt("Enter password") !== "7931") {
+    document.body.innerHTML = "Access Denied";
+    throw new Error("Unauthorized");
+}
+
+const repo = "techlystb/my-ads-system";
+const filePath = "ads.json";
+
+let ads = [];
+let sha = "";
+
+// নিচে বাকি code... your username 
+    
+<script>
 const repo = "techlystb/my-ads-system";
 const filePath = "ads.json";
 
