@@ -1,42 +1,97 @@
 (function () {
 
-    const adBoxId = "myAdBox";
-    const category = document.getElementById(adBoxId)?.dataset.category || "all";
+    const adBox = document.getElementById("myAdBox");
+    if (!adBox) return;
 
-    async function loadAd() {
-        let ads = await fetch("https://aveestb.github.io/my-ads-system/ads.json").then(r => r.json());
-        let stats = await fetch("https://aveestb.github.io/my-ads-system/stats.json").then(r => r.json());
+    const API = "https://aveestb.github.io/my-ads-system/ads.json";
+    const CACHE_KEY = "ads_cache";
+    const CACHE_TIME = 5 * 60 * 1000; // 5 min
 
-        // filter by category
-        if (category !== "all") {
-            ads = ads.filter(ad => ad.category === category);
+    let ads = [];
+
+    // 📦 Load from cache
+    function loadCache() {
+        let cache = localStorage.getItem(CACHE_KEY);
+        if (!cache) return null;
+
+        let data = JSON.parse(cache);
+        if (Date.now() - data.time < CACHE_TIME) {
+            return data.ads;
+        }
+        return null;
+    }
+
+    // 💾 Save cache
+    function saveCache(data) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            time: Date.now(),
+            ads: data
+        }));
+    }
+
+    // 🚀 Fetch ads
+    async function fetchAds() {
+        let cached = loadCache();
+        if (cached) {
+            ads = cached;
+            renderAd();
+            return;
         }
 
-        let ad = ads[Math.floor(Math.random() * ads.length)];
+        try {
+            let res = await fetch(API);
+            ads = await res.json();
+            saveCache(ads);
+            renderAd();
+        } catch (e) {
+            console.log("Ad load failed", e);
+        }
+    }
 
-        // view count
-        if (!stats[ad.id]) stats[ad.id] = { clicks: 0, views: 0 };
-        stats[ad.id].views++;
+    // 🧠 Smart filter (category)
+    function getFilteredAds() {
+        let category = adBox.dataset.category || "all";
 
-        updateStats(stats);
+        if (category !== "all") {
+            let filtered = ads.filter(a => a.category === category);
+            if (filtered.length) return filtered;
+        }
+        return ads;
+    }
 
-        let html = `
-            <a href="${ad.link}?ad_id=${ad.id}" target="_blank">
-                <img src="${ad.image}" style="width:100%">
-                <p>${ad.title}</p>
+    // 🖼 Preload image
+    function preload(src) {
+        let img = new Image();
+        img.src = src;
+    }
+
+    // 🎯 Render ad
+    function renderAd() {
+        let list = getFilteredAds();
+        if (!list.length) return;
+
+        let ad = list[Math.floor(Math.random() * list.length)];
+
+        // preload next image
+        preload(ad.image);
+
+        adBox.innerHTML = `
+            <a href="${ad.link}" target="_blank">
+                <img src="${ad.image}" loading="lazy" style="width:100%;border-radius:10px;">
+                <p style="text-align:center;font-size:14px;">${ad.title}</p>
             </a>
         `;
-
-        document.getElementById(adBoxId).innerHTML = html;
     }
 
-    async function updateStats(stats) {
-        // ⚠️ GitHub API লাগবে (token ছাড়া কাজ করবে না)
-        console.log("Stats updated locally", stats);
+    // 🔁 Rotate without flicker
+    function startRotation() {
+        setInterval(() => {
+            renderAd();
+        }, 5000);
     }
 
-    loadAd();
-    setInterval(loadAd, 5000);
+    // 🚀 Start
+    fetchAds();
+    startRotation();
 
 })();
-
