@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -197,36 +198,39 @@ button {
 
 <body>
 
-
-
 <!-- LOGIN UI -->
+
 <div class="phone" id="loginUI">
     <div class="screen">
 
-        <button id="loginBtn">⚡ Login</button>
+```
+    <button id="loginBtn">⚡ Login</button>
 
-        <div class="login-box" id="loginBox">
-            <h2>Access System</h2>
+    <div class="login-box" id="loginBox">
+        <h2>Access System</h2>
 
-            <input id="username" placeholder="Username" class="glow-input">
-            <input id="password" type="password" placeholder="Password" class="glow-input">
+        <input id="username" type="text" placeholder="Username" class="glow-input">
+        <input id="password" type="password" placeholder="Password" class="glow-input">
 
-            <p id="errorMsg" style="display:none;">❌ Wrong Username/Password</p>
+        <p id="errorMsg" style="color:#ff6b6b;text-align:center;display:none;">
+            ❌ Username বা Password ভুল
+        </p>
 
-            <button class="submit-btn" onclick="login()">ENTER</button>
-        </div>
-
+        <button class="submit-btn" onclick="login()">ENTER</button>
     </div>
+
+</div>
+```
+
 </div>
 
 <!-- MAIN PANEL -->
-<div id="mainPanel" style="display:none;">
+
+<div id="mainPanel">
 
 <h2>🔐 Ads Control Panel</h2>
 <p id="roleInfo"></p>
-
 <button onclick="logout()">🚪 Logout</button>
-
 <input type="password" id="token" placeholder="GitHub Token">
 
 <h3>Add / Edit Ad</h3>
@@ -235,94 +239,125 @@ button {
 <input id="image" placeholder="Image URL">
 <input id="link" placeholder="Link">
 <input id="category" placeholder="Category">
-
 <button onclick="saveAd()">Save Ad</button>
 
 <h3>Ads List</h3>
 <div id="adsList"></div>
 
-<button onclick="saveAll()">💾 Save</button>
-<button onclick="toggleStats()">📊 Analytics</button>
+<button onclick="saveAll()">💾 Save to GitHub</button> <button onclick="toggleStats()">📊 Analytics</button>
 
-<div id="statsBox" style="display:none;">
-    <div id="statsList"></div>
+<div id="statsBox">
+  <h3>📊 Analytics Dashboard</h3>
 
-    <h4>Views</h4>
-    <div id="viewsGraph"></div>
+  <div id="statsList"></div>
 
-    <h4>Clicks</h4>
-    <div id="clicksGraph"></div>
+  <h4>📈 Views Graph</h4>
+  <div id="viewsGraph" class="graph"></div>
+
+  <h4>🔥 Clicks Graph</h4>
+  <div id="clicksGraph" class="graph"></div>
 </div>
 
-</div>
 
 <script>
-
-// ===== USERS =====
+// ================= USERS =================
 const users = [
- {user:"admin", pass:"7931"}
+ {user:"admin", pass:"7931", role:"admin"},
+ {user:"client1", pass:"1111", role:"client"},
+ {user:"client2", pass:"2222", role:"client"},
+ {user:"client3", pass:"3333", role:"client"},
+ {user:"client4", pass:"4444", role:"client"},
+ {user:"client5", pass:"5555", role:"client"}
 ];
 
-// ===== GLOBAL =====
-let ads = [];
-let stats = { ads:{} };
-
-let shaAds="", shaStats="";
+let currentUser;
 const repo = "aveestb/my-ads-system";
 
-// ===== LOGIN UI =====
-document.getElementById("loginBtn").onclick = () => {
- document.getElementById("loginBox").classList.toggle("active");
-};
+let ads = [];
+let stats = {ads:{}};
+let shaAds="", shaStats="";
 
-// ===== LOGIN =====
+// ================= LOGIN UI =================
+loginBtn.onclick = () => loginBox.classList.toggle("active");
+
+// typing glow
+document.querySelectorAll(".glow-input").forEach(i=>{
+ i.oninput=()=>i.classList.toggle("typing", i.value.length>0);
+});
+
+// ================= LOGIN =================
 function login(){
+ let u=username.value.trim();
+ let p=password.value.trim();
+ let err=errorMsg;
 
- let u = document.getElementById("username").value.trim();
- let p = document.getElementById("password").value.trim();
- let err = document.getElementById("errorMsg");
-
- let user = users.find(x => x.user===u && x.pass===p);
+ let user=users.find(x=>x.user===u && x.pass===p);
 
  if(!user){
-  err.style.display = "block";
+  err.style.display="block";
   return;
  }
 
- err.style.display = "none";
+ currentUser=user;
 
- document.getElementById("loginUI").style.display="none";
- document.getElementById("mainPanel").style.display="block";
+ loginUI.style.display="none";
+ mainPanel.style.display="block";
 
- document.getElementById("roleInfo").innerHTML = "Logged in: " + user.user;
+ roleInfo.innerHTML=`Logged in as <b>${user.user}</b> (${user.role})`;
+
+ err.style.display="none";
+
+ localStorage.setItem("adsUser", JSON.stringify(user));
 
  loadAll();
 }
 
-// ===== LOAD DATA =====
+// AUTO LOGIN
+window.onload=()=>{
+ let saved=localStorage.getItem("adsUser");
+ if(saved){
+  let user=JSON.parse(saved);
+  currentUser=user;
+
+  loginUI.style.display="none";
+  mainPanel.style.display="block";
+
+  roleInfo.innerHTML=`Logged in as <b>${user.user}</b> (${user.role})`;
+
+  loadAll();
+ }
+};
+
+// LOGOUT
+function logout(){
+ localStorage.removeItem("adsUser");
+ location.reload();
+}
+
+// ================= LOAD DATA =================
 async function loadAll(){
+ let a=await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
+ let s=await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
 
- let adsRes = await fetch(`https://api.github.com/repos/${repo}/contents/ads.json`).then(r=>r.json());
- let statsRes = await fetch(`https://api.github.com/repos/${repo}/contents/stats.json`).then(r=>r.json());
+ shaAds=a.sha; 
+ shaStats=s.sha;
 
- shaAds = adsRes.sha;
- shaStats = statsRes.sha;
-
- ads = JSON.parse(atob(adsRes.content));
- stats = JSON.parse(atob(statsRes.content));
+ ads=JSON.parse(atob(a.content));
+ stats=JSON.parse(atob(s.content));
 
  renderAds();
  renderStats();
 }
 
-// ===== RENDER ADS =====
+// ================= RENDER ADS =================
 function renderAds(){
+ let html="";
 
- let html = "";
+ads.forEach(ad=>{
+ trackView(ad.id); // 👈 এটা যোগ করো
+    
+  if(!stats.ads) stats.ads = {};
 
- ads.forEach(ad=>{
-
-  // ensure stats exists
   if(!stats.ads[ad.id]){
     stats.ads[ad.id] = {views:0, clicks:0, ctr:0};
   }
@@ -330,46 +365,74 @@ function renderAds(){
   // view count
   stats.ads[ad.id].views++;
 
-  html += `
+  html+=`
   <div class="ad">
-    <b>${ad.title}</b><br>
+   <b>${ad.title}</b><br>
 
-    <img src="${ad.image}" width="100%"
-    style="cursor:pointer;"
-    onclick="trackClick(${ad.id}, '${ad.link.replace(/'/g,"\\'")}')">
-  </div>
-  `;
+   <img src="${ad.image}" width="100%" 
+   onclick="trackClick(${ad.id}, '${ad.link.replace(/'/g,"\\'")}')" 
+   style="cursor:pointer;">
+
+   <button onclick="editAd(${ad.id})">Edit</button>
+   ${currentUser.role==="admin" ? `<button onclick="deleteAd(${ad.id})">Delete</button>` : ""}
+  </div>`;
  });
 
- document.getElementById("adsList").innerHTML = html;
+ adsList.innerHTML = html;
 }
 
-// ===== CLICK TRACK =====
-async function trackClick(id, url){
+// ================= CLICK TRACK =================
+async function trackClick(adId, url){
 
- if(!stats.ads[id]){
-   stats.ads[id] = {views:0, clicks:0, ctr:0};
+ // নিশ্চিত করা stats.ads আছে
+ if(!stats.ads) stats.ads = {};
+
+ // যদি ad না থাকে create করো
+ if(!stats.ads[adId]){
+   stats.ads[adId] = {views:0, clicks:0, ctr:0};
  }
 
- stats.ads[id].clicks++;
+ // clicks বাড়াও
+ stats.ads[adId].clicks++;
 
- let v = stats.ads[id].views || 0;
- let c = stats.ads[id].clicks || 0;
+ // CTR calculate
+ let v = stats.ads[adId].views || 0;
+ let c = stats.ads[adId].clicks || 0;
 
- stats.ads[id].ctr = v ? ((c/v)*100).toFixed(2) : 0;
+ stats.ads[adId].ctr = v > 0 ? ((c / v) * 100).toFixed(2) : 0;
 
+ // UI update
  renderStats();
 
- // optional GitHub save
+ // 👉 optional: auto save to GitHub (recommended)
  let token = document.getElementById("token").value;
  if(token){
    await update("stats.json", stats, shaStats, token);
  }
 
+ // 👉 redirect to ad link
  window.open(url, "_blank");
 }
 
-// ===== RENDER STATS =====
+
+function trackView(adId){
+
+ if(!stats.ads) stats.ads = {};
+
+ if(!stats.ads[adId]){
+   stats.ads[adId] = {views:0, clicks:0, ctr:0};
+ }
+
+ stats.ads[adId].views++;
+
+ let v = stats.ads[adId].views;
+ let c = stats.ads[adId].clicks || 0;
+
+ stats.ads[adId].ctr = v > 0 ? ((c / v) * 100).toFixed(2) : 0;
+}
+
+    
+// ================= RENDER STATS =================
 function renderStats(){
 
  let listHTML = "";
@@ -379,24 +442,24 @@ function renderStats(){
  let maxViews = 1;
  let maxClicks = 1;
 
+ // find max for scaling
  for(let id in stats.ads){
-  maxViews = Math.max(maxViews, stats.ads[id].views);
-  maxClicks = Math.max(maxClicks, stats.ads[id].clicks);
+   maxViews = Math.max(maxViews, stats.ads[id].views || 0);
+   maxClicks = Math.max(maxClicks, stats.ads[id].clicks || 0);
  }
 
  for(let id in stats.ads){
+   let s = stats.ads[id];
 
-  let s = stats.ads[id];
+   listHTML += `
+   <p>Ad ${id}: ${s.views||0} views / ${s.clicks||0} clicks / CTR: ${s.ctr||0}%</p>
+   `;
 
-  listHTML += `
-   <p>Ad ${id}: ${s.views} views / ${s.clicks} clicks / CTR ${s.ctr}%</p>
-  `;
+   let vHeight = (s.views / maxViews) * 100;
+   let cHeight = (s.clicks / maxClicks) * 100;
 
-  let vHeight = (s.views / maxViews) * 100;
-  let cHeight = (s.clicks / maxClicks) * 100;
-
-  viewsHTML += `<div style="height:${vHeight}%">${id}</div>`;
-  clicksHTML += `<div style="height:${cHeight}%">${id}</div>`;
+   viewsHTML += `<div class="bar" style="height:${vHeight}%">${id}</div>`;
+   clicksHTML += `<div class="bar" style="height:${cHeight}%">${id}</div>`;
  }
 
  document.getElementById("statsList").innerHTML = listHTML;
@@ -404,50 +467,80 @@ function renderStats(){
  document.getElementById("clicksGraph").innerHTML = clicksHTML;
 }
 
-// ===== TOGGLE =====
-function toggleStats(){
+
+// ================= TOGGLE STATS =================
+ function toggleStats(){
  let box = document.getElementById("statsBox");
- box.style.display = box.style.display==="none" ? "block" : "none";
+ box.classList.toggle("active");
 }
 
-// ===== SAVE ADS =====
-function saveAd(){
 
- let ad = {
-  id: Number(document.getElementById("id").value || Date.now()),
-  title: document.getElementById("title").value,
-  image: document.getElementById("image").value,
-  link: document.getElementById("link").value,
-  category: document.getElementById("category").value
+
+// ================= EDIT =================
+function editAd(id){
+ let ad=ads.find(a=>a.id==id);
+ document.getElementById("id").value=ad.id;
+ document.getElementById("title").value=ad.title;
+ document.getElementById("image").value=ad.image;
+ document.getElementById("link").value=ad.link;
+ document.getElementById("category").value=ad.category;
+}
+
+// ================= SAVE AD =================
+function saveAd(){
+ let idVal=document.getElementById("id").value;
+
+ let ad={
+  id:Number(idVal||Date.now()),
+  title:title.value,
+  image:image.value,
+  link:link.value,
+  category:category.value
  };
 
- ads.push(ad);
+ let i=ads.findIndex(a=>a.id==ad.id);
+
+ if(i>-1) ads[i]=ad;
+ else{
+  ads.push(ad);
+  stats.ads[ad.id]={views:0,clicks:0,ctr:0};
+ }
+
  renderAds();
 }
 
-// ===== SAVE TO GITHUB =====
+// ================= DELETE =================
+function deleteAd(idVal){
+ ads=ads.filter(a=>a.id!=idVal);
+ delete stats.ads[idVal];
+ renderAds();
+}
+
+// ================= SAVE GITHUB =================
 async function saveAll(){
+ let t=token.value;
 
- let token = document.getElementById("token").value;
-
- if(!token){
+ if(!t){
   alert("GitHub token লাগবে!");
   return;
  }
 
- await update("ads.json", ads, shaAds, token);
- await update("stats.json", stats, shaStats, token);
+ let res1 = await update("ads.json",ads,shaAds,t);
+ let res2 = await update("stats.json",stats,shaStats,t);
 
- alert("Saved!");
+ if(res1 && res1.content) shaAds = res1.content.sha;
+ if(res2 && res2.content) shaStats = res2.content.sha;
+
+ console.log("Saved!");
 }
 
-// ===== UPDATE =====
-async function update(path,data,sha,token){
+// ================= UPDATE =================
+async function update(path,data,sha,t){
 
- await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+ let res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
   method:"PUT",
   headers:{
-   "Authorization":"token "+token,
+   "Authorization":"token "+t,
    "Content-Type":"application/json"
   },
   body:JSON.stringify({
@@ -456,16 +549,14 @@ async function update(path,data,sha,token){
    sha:sha
   })
  });
-}
 
-// ===== LOGOUT =====
-function logout(){
- location.reload();
-}
+ let json = await res.json();
 
+ console.log("GitHub response:", json);
+
+ return json;
+}
 </script>
 
-
-    
 </body>
 </html>
