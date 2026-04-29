@@ -1,5 +1,36 @@
 (function () {
 
+  const ads = [
+    {title: "Ad 1", link: "#"},
+    {title: "Ad 2", link: "#"},
+    {title: "Ad 3", link: "#"}
+  ];
+
+  const adBoxes = document.querySelectorAll(".myAdBox");
+  if (!adBoxes.length) return;
+
+  function renderAds() {
+    adBoxes.forEach(box => {
+      const randomAd = ads[Math.floor(Math.random() * ads.length)];
+
+      box.innerHTML = `
+        <div style="padding:10px;background:#eee;text-align:center">
+          <h3>${randomAd.title}</h3>
+          <a href="${randomAd.link}">Visit</a>
+        </div>
+      `;
+    });
+  }
+
+  renderAds();
+
+})();
+
+
+
+
+(function () {
+
     const adBoxes = document.querySelectorAll(".myAdBox");
     if (!adBoxes.length) return;
 
