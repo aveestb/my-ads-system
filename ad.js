@@ -1,7 +1,7 @@
 (function () {
 
-    const adBox = document.getElementById("myAdBox");
-    if (!adBox) return;
+    const adBoxes = document.querySelectorAll(".myAdBox");
+    if (!adBoxes.length) return;
 
     const API = "https://aveestb.github.io/my-ads-system/ads.json";
     const CACHE_KEY = "ads_cache";
@@ -34,7 +34,7 @@
         let cached = loadCache();
         if (cached) {
             ads = cached;
-            renderAd();
+            renderAllAds();
             return;
         }
 
@@ -42,15 +42,15 @@
             let res = await fetch(API);
             ads = await res.json();
             saveCache(ads);
-            renderAd();
+            renderAllAds();
         } catch (e) {
             console.log("Ad load failed", e);
         }
     }
 
-    // 🧠 Smart filter (category)
-    function getFilteredAds() {
-        let category = adBox.dataset.category || "all";
+    // 🧠 Smart filter (per box)
+    function getFilteredAds(box) {
+        let category = box.dataset.category || "all";
 
         if (category !== "all") {
             let filtered = ads.filter(a => a.category === category);
@@ -65,17 +65,16 @@
         img.src = src;
     }
 
-    // 🎯 Render ad
-    function renderAd() {
-        let list = getFilteredAds();
+    // 🎯 Render single ad
+    function renderAd(box) {
+        let list = getFilteredAds(box);
         if (!list.length) return;
 
         let ad = list[Math.floor(Math.random() * list.length)];
 
-        // preload next image
         preload(ad.image);
 
-        adBox.innerHTML = `
+        box.innerHTML = `
             <a href="${ad.link}" target="_blank">
                 <img src="${ad.image}" loading="lazy" style="width:100%;border-radius:10px;">
                 <p style="text-align:center;font-size:14px;">${ad.title}</p>
@@ -83,10 +82,15 @@
         `;
     }
 
-    // 🔁 Rotate without flicker
+    // 🎯 Render all boxes
+    function renderAllAds() {
+        adBoxes.forEach(box => renderAd(box));
+    }
+
+    // 🔁 Rotate
     function startRotation() {
         setInterval(() => {
-            renderAd();
+            renderAllAds();
         }, 5000);
     }
 
