@@ -11,8 +11,17 @@
     async function fetchAds() {
         try {
             let res = await fetch(API);
+            if (!res.ok) throw new Error("API error");
+
             ads = await res.json();
+
+            if (!Array.isArray(ads) || !ads.length) {
+                console.log("No ads found");
+                return;
+            }
+
             renderAllAds();
+            startRotation(); // 👉 fetch হওয়ার পর start
         } catch (e) {
             console.log("Ad load failed", e);
         }
@@ -26,7 +35,7 @@
 
         box.innerHTML = `
             <a href="${ad.link}" target="_blank">
-                <img src="${ad.image}" style="width:100%;border-radius:10px;">
+                <img src="${ad.image}" loading="lazy" style="width:100%;border-radius:10px;">
                 <p style="text-align:center;">${ad.title}</p>
             </a>
         `;
@@ -37,10 +46,12 @@
         adBoxes.forEach(box => renderAd(box));
     }
 
-    // 🔁 Rotate ads
-    setInterval(() => {
-        renderAllAds();
-    }, 5000);
+    // 🔁 Rotate ads (only after ads loaded)
+    function startRotation() {
+        setInterval(() => {
+            renderAllAds();
+        }, 5000);
+    }
 
     // 🚀 Start
     fetchAds();
